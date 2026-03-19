@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════════
+# Client Policy — Business Intent Layer
+# ═══════════════════════════════════════════════════════════════
+# This is NOT Stitch configuration. This is business intent.
+# Customers express what matters. The pipeline translates.
+# ═══════════════════════════════════════════════════════════════
+
+identity_policies:
+  default:
+    confidence_gate: 0.90
+    max_auto_merge: 10
+    always_review_if_split: false
+    skip_monitoring: false
+
+  # Example: Override for high-value segments
+  # loyalty_members:
+  #   confidence_gate: 0.97
+  #   always_review_if_split: true
+  #   max_auto_merge: 5
+  #
+  # web_anonymous:
+  #   confidence_gate: 0.85
+  #   skip_monitoring: true
+
+compute_policies:
+  daily_amps_target: 50000
+  optimize_for: quality   # quality | speed | cost
+  max_amps_per_proposal: 5000
+
+monitoring_policies:
+  drift_alert_threshold: 0.02     # 2% change triggers alert
+  segment_size_alert: 0.05        # 5% segment size change
+  supersized_cluster_threshold: 1000
+
+gate_rules:
+  auto_approve:
+    min_confidence: 0.95
+    must_be_reversible: true
+    max_affected_records: 1000
+    max_amps_cost: 1000
+
+  block:
+    source_record_modification: true
+    amps_budget_exceeded: true
+    cluster_size_exceeded: true

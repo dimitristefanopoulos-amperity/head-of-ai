@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Strategist — Macy's</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root{--bg:#0C0C0C;--surface:#141414;--card:#1a1a1a;--border:rgba(84,211,222,0.12);
+--teal:#54D3DE;--ocean:#00A0B2;--yellow:#EAFF5F;--green:#10B981;--red:#EF4444;--orange:#F59E0B;
+--white:#FFFFFF;--text:#E5E7EB;--muted:#6B7280;--dim:rgba(255,255,255,0.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+.header{padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(234,255,95,0.02) 0%,transparent 100%);flex-shrink:0}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-left img{height:20px}
+.header-brand{font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;color:var(--yellow);letter-spacing:1.5px;text-transform:uppercase}
+.header-nav{display:flex;gap:12px}
+.header-nav a{color:var(--muted);text-decoration:none;font-size:11px;font-weight:600;padding:5px 12px;border-radius:4px;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px}
+.header-nav a:hover{color:var(--white)}
+.header-nav a.active{color:var(--bg);background:var(--yellow)}
+.accent-bar{height:2px;background:linear-gradient(90deg,var(--yellow),var(--teal),var(--yellow));opacity:0.5;flex-shrink:0}
+
+.main{flex:1;display:flex;flex-direction:column;max-width:900px;margin:0 auto;width:100%;padding:20px 24px}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.chip{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);color:var(--teal);background:rgba(84,211,222,0.05);transition:all 0.15s;font-family:inherit}
+.chip:hover{background:rgba(84,211,222,0.12);border-color:var(--teal)}
+
+/* Chat */
+.chat{flex:1;overflow-y:auto;margin-bottom:16px;padding:8px 0}
+.chat-empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.chat-empty h2{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;color:var(--white);margin-bottom:8px}
+.chat-empty h2 em{color:var(--yellow);font-style:normal}
+.chat-empty p{font-size:13px;line-height:1.6;max-width:500px;margin:0 auto}
+
+.msg{margin-bottom:14px;padding:14px 18px;border-radius:10px;font-size:14px;line-height:1.7;animation:fadeIn 0.3s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{background:rgba(234,255,95,0.08);border:1px solid rgba(234,255,95,0.15);color:var(--white)}
+.msg.assistant{background:var(--card);border:1px solid var(--border)}
+.msg.error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.msg-label{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.msg.user .msg-label{color:var(--yellow)}
+.msg.assistant .msg-label{color:var(--teal)}
+
+/* Markdown in assistant */
+.msg.assistant h2{font-size:15px;font-weight:700;color:var(--white);margin:12px 0 6px;font-family:'Montserrat',sans-serif}
+.msg.assistant h3{font-size:13px;font-weight:600;color:var(--teal);margin:10px 0 4px}
+.msg.assistant strong{color:var(--white)}
+.msg.assistant table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+.msg.assistant th{background:var(--surface);color:var(--teal);padding:6px 10px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.5px}
+.msg.assistant td{padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.msg.assistant code{background:var(--surface);padding:1px 5px;border-radius:3px;font-size:12px;color:var(--yellow)}
+.msg.assistant pre{background:var(--surface);border:1px solid var(--border);padding:12px;border-radius:8px;overflow-x:auto;margin:8px 0;font-size:12px;color:var(--teal);position:relative}
+.msg.assistant pre code{background:none;color:inherit;padding:0}
+.sql-actions{display:flex;gap:6px;margin-top:6px}
+.sql-btn{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.5px;padding:4px 10px;border-radius:4px;cursor:pointer;transition:all 0.15s;text-transform:uppercase;border:none}
+.sql-copy{background:rgba(84,211,222,0.1);color:var(--teal);border:1px solid rgba(84,211,222,0.25)}
+.sql-copy:hover{background:rgba(84,211,222,0.2)}
+.sql-open{background:rgba(234,255,95,0.1);color:var(--yellow);border:1px solid rgba(234,255,95,0.25)}
+.sql-open:hover{background:rgba(234,255,95,0.2)}
+.msg.assistant ul,.msg.assistant ol{padding-left:20px}
+.msg.assistant li{margin:3px 0}
+.msg.assistant a{color:var(--teal);text-decoration:underline;text-decoration-color:rgba(84,211,222,0.4)}
+.msg.assistant a:hover{color:var(--yellow);text-decoration-color:var(--yellow)}
+.msg.assistant blockquote{border-left:3px solid var(--yellow);padding-left:12px;color:var(--muted);margin:8px 0}
+.provider-tag{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;background:rgba(234,255,95,0.1);color:var(--yellow);border:1px solid rgba(234,255,95,0.2)}
+
+/* Input */
+.input-area{flex-shrink:0;padding:12px 0}
+.input-row{display:flex;gap:10px}
+.input-row textarea{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--white);font-family:inherit;font-size:14px;resize:none;outline:none;transition:border-color 0.2s}
+.input-row textarea:focus{border-color:var(--yellow)}
+.input-row textarea::placeholder{color:var(--dim)}
+.send-btn{padding:14px 24px;background:var(--yellow);color:var(--bg);border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
+.send-btn:hover{background:var(--teal)}
+.send-btn:disabled{background:var(--muted);cursor:not-allowed}
+
+.loading{text-align:center;padding:16px;color:var(--muted);font-size:12px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-radius:50%;border-top-color:var(--yellow);animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <img src="https://amperity-static-assets.s3-us-west-2.amazonaws.com/resources/img/amp_logo_white.svg" alt="Amperity">
+    <span class="header-brand">Strategist — Macy's</span>
+  </div>
+  <div class="header-nav">
+    <a href="/">Search</a>
+    <a href="/tools">Data Quality</a>
+    <a href="/ai">AI</a>
+    <a href="/agentic">Agentic</a>
+    <a href="/strategist" class="active">Strategist</a>
+  </div>
+</div>
+<div class="accent-bar"></div>
+
+<div class="main">
+
+<div class="chips">
+  <div class="chip" data-q="What marketing campaigns should we be running based on our identity data? Size the audiences.">Campaign Ideas</div>
+  <div class="chip" data-q="Build me a win-back segment for customers who haven't been seen in 180 days.">Win-Back Segment</div>
+  <div class="chip" data-q="What's our Crawl-Walk-Run maturity? What should we tackle next?">Maturity Assessment</div>
+  <div class="chip" data-q="Find our highest-value multi-source customers and create a VIP segment.">VIP Segment</div>
+  <div class="chip" data-q="What use cases are we missing? Map our whitespace to the Amperity use case library.">Whitespace Analysis</div>
+  <div class="chip" data-q="Create a segment of customers with email + phone + address — our best-known audience.">Best-Known Audience</div>
+</div>
+
+<div class="chat" id="chat">
+  <div class="chat-empty">
+    <h2>Your data. <em>Your strategy.</em></h2>
+    <p>I know your tenant's identity data, feature set, and use case maturity. Ask me what to build next — I'll size the audience, generate the SQL, and create the segment. Just say "build it."</p>
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="input-row">
+    <textarea id="input" placeholder="What campaigns should we run? Build a segment for..." rows="2"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="ask()">Go</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+let firstAsk = true;
+
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => { input.value = c.dataset.q; input.focus(); });
+});
+
+const TENANT_URL = 'https://macys.amperity.com';
+
+function addMsg(role, text, provider) {
+  const empty = chat.querySelector('.chat-empty');
+  if (empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  if (role === 'assistant') {
+    div.innerHTML = `<div class="msg-label">${provider || 'Strategy Agent'}</div>${marked.parse(text)}<div class="provider-tag">${provider || 'strategy agent'}</div>`;
+    // Add Copy SQL + Open in Amperity buttons to every code block
+    div.querySelectorAll('pre code').forEach(block => {
+      const sql = block.textContent.trim();
+      if (sql.toLowerCase().includes('select') || sql.toLowerCase().includes('from')) {
+        const actions = document.createElement('div');
+        actions.className = 'sql-actions';
+        actions.innerHTML = `
+          <button class="sql-btn sql-copy" onclick="copySQL(this)">📋 Copy SQL</button>
+          <button class="sql-btn sql-open" onclick="openInAmperity(this)">↗ Open in Amperity</button>
+        `;
+        block.parentElement.after(actions);
+      }
+    });
+  } else if (role === 'error') {
+    div.innerHTML = text;
+  } else {
+    div.innerHTML = `<div class="msg-label">You</div>${text}`;
+  }
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function copySQL(btn) {
+  const pre = btn.parentElement.previousElementSibling;
+  const sql = pre.querySelector('code')?.textContent || pre.textContent;
+  navigator.clipboard.writeText(sql.trim());
+  btn.textContent = '✓ Copied';
+  setTimeout(() => btn.textContent = '📋 Copy SQL', 2000);
+}
+
+function openInAmperity(btn) {
+  const pre = btn.parentElement.previousElementSibling;
+  const sql = pre.querySelector('code')?.textContent || pre.textContent;
+  navigator.clipboard.writeText(sql.trim());
+  // Check if there's a segment ID in the nearby response (look for seg- pattern)
+  const msgEl = btn.closest('.msg');
+  const segMatch = msgEl ? msgEl.innerHTML.match(/seg-[A-Za-z0-9]+/) : null;
+  if (segMatch) {
+    window.open(`${TENANT_URL}/#/segments/${segMatch[0]}/draft`, '_blank');
+    btn.textContent = '✓ Opening segment draft...';
+  } else {
+    window.open(`${TENANT_URL}/#/queries`, '_blank');
+    btn.textContent = '✓ SQL copied — paste in query editor';
+  }
+  setTimeout(() => btn.textContent = '↗ Open in Amperity', 3000);
+}
+
+async function ask() {
+  const q = input.value.trim();
+  if (!q) return;
+
+  // First ask clears atomically via the clear flag
+  let clearFlag = false;
+  if (firstAsk) {
+    clearFlag = true;
+    firstAsk = false;
+  }
+
+  sendBtn.disabled = true;
+  input.disabled = true;
+  addMsg('user', q);
+  input.value = '';
+
+  const loading = document.createElement('div');
+  loading.className = 'loading';
+  loading.innerHTML = '<span class="spin"></span>Analyzing your data and building strategy...';
+  chat.appendChild(loading);
+
+  // Live cycling suggestions — fire concurrent lightweight requests while main query runs
+  const QUICK_QUESTIONS = [
+    "What's our Crawl-Walk-Run maturity?",
+    "Which sources have the worst data quality?",
+    "What features should we enable next?",
+    "How does our dedup rate compare to benchmarks?",
+    "What's our singleton rate and what does it mean?",
+    "What campaigns would drive the most revenue?",
+    "Where are we wasting identity resolution potential?",
+    "What's the #1 thing blocking us from Walk maturity?",
+    "Which data source has the most untapped potential?",
+    "What would Predictive unlock for us?",
+    "How many customers can we reach via email vs SMS?",
+    "What does our source overlap look like?",
+  ];
+  const shuffled = QUICK_QUESTIONS.sort(() => Math.random() - 0.5);
+  let suggestionIdx = 0;
+  const whileYouWait = document.createElement('div');
+  whileYouWait.id = 'waitSuggestions';
+  whileYouWait.style.cssText = 'text-align:center;padding:12px 0;opacity:0;animation:fadeIn 0.6s ease-out 2s forwards';
+  function renderSuggestions() {
+    const batch = [];
+    for (let i = 0; i < 4; i++) {
+      batch.push(shuffled[(suggestionIdx + i) % shuffled.length]);
+    }
+    suggestionIdx = (suggestionIdx + 4) % shuffled.length;
+    whileYouWait.innerHTML = `
+      <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Quick insights — click to ask concurrently</div>
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+        ${batch.map(s => `<span class="chip" style="font-size:10px;padding:5px 12px;cursor:pointer" onclick="askConcurrent('${s.replace(/'/g, "\\'")}')">${s}</span>`).join('')}
+      </div>
+    `;
+  }
+  renderSuggestions();
+  const cycleInterval = setInterval(() => {
+    renderSuggestions();
+    whileYouWait.style.animation = 'none';
+    whileYouWait.offsetHeight; // force reflow
+    whileYouWait.style.animation = 'fadeIn 0.4s ease-out forwards';
+  }, 8000);
+  chat.appendChild(whileYouWait);
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const r = await fetch('/api/strategist/ask', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: q, clear: clearFlag})
+    });
+    const data = await r.json();
+    loading.remove();
+    clearInterval(cycleInterval);
+    try { whileYouWait.remove(); } catch(x) {}
+    if (data.error) {
+      addMsg('error', data.error);
+    } else if (data.response && typeof data.response === 'string' && data.response.length > 10 && data.response !== 'true' && data.response !== 'false') {
+      addMsg('assistant', data.response, data.provider);
+    } else {
+      // Silently retry once
+      const r2 = await fetch('/api/strategist/ask', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: q})
+      });
+      const data2 = await r2.json();
+      if (data2.response && typeof data2.response === 'string' && data2.response.length > 10) {
+        addMsg('assistant', data2.response, 'Strategy Agent');
+      } else {
+        addMsg('error', 'Got an incomplete response. Try asking again.');
+      }
+    }
+  } catch(e) {
+    loading.remove();
+    clearInterval(cycleInterval);
+    try { whileYouWait.remove(); } catch(x) {}
+    addMsg('error', e.message);
+  }
+
+  sendBtn.disabled = false;
+  input.disabled = false;
+  input.focus();
+}
+
+let queuedQuestion = null;
+function queueQuestion(q) {
+  input.value = q;
+  queuedQuestion = q;
+  input.focus();
+  input.style.borderColor = 'var(--yellow)';
+  setTimeout(() => input.style.borderColor = '', 1000);
+}
+
+// Fire a concurrent lightweight question while the main query runs
+async function askConcurrent(q) {
+  // Show user message immediately
+  addMsg('user', q);
+
+  // Quick loading indicator
+  const miniLoad = document.createElement('div');
+  miniLoad.className = 'loading';
+  miniLoad.style.padding = '12px';
+  miniLoad.innerHTML = '<span class="spin"></span>Quick answer...';
+  chat.appendChild(miniLoad);
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    // Use the quick endpoint — no tools, context-only, instant
+    const r = await fetch('/api/strategist/quick', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: q})
+    });
+    const data = await r.json();
+    miniLoad.remove();
+    if (data.response && typeof data.response === 'string' && data.response.length > 10) {
+      addMsg('assistant', data.response, data.provider || 'quick insight');
+    }
+  } catch(e) {
+    miniLoad.remove();
+  }
+}
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); }
+});
+input.focus();
+</script>
+</body>
+</html>

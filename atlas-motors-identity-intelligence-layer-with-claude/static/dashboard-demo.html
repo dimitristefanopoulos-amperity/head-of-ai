@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Demo | Atlas Motors Identity Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <style>
+        :root {
+            --bg: #0C0C0C;
+            --panel: #1a1a1a;
+            --panel-2: #222222;
+            --text: #E8EDEF;
+            --muted: #A0A7AF;
+            --brand: #54d3de;
+            --accent: #EAFF5F;
+            --danger: #FF504A;
+            --border: #282B2E;
+            --dusk: #004B57;
+            --ocean: #00A0B2;
+            --warn: #F59E0B;
+            --shadow: 0 8px 24px rgba(0,0,0,.5);
+            --radius: 12px;
+            --font: 'Montserrat', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.6;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 56px;
+            backdrop-filter: blur(12px);
+            background: color-mix(in srgb, var(--bg) 85%, transparent);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-brand img { height: 26px; }
+
+        .topbar-brand .pipe {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+        }
+
+        .topbar-brand .title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text);
+        }
+
+        .topbar-brand .demo-badge {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 2px 7px;
+            margin-left: 6px;
+        }
+
+        .topbar-nav {
+            display: flex;
+            gap: 24px;
+        }
+
+        .topbar-nav a {
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 8px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .topbar-nav a:hover {
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .topbar-nav a.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        /* ── App Container ── */
+        .app {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 32px 80px;
+        }
+
+        /* ── Scroll Reveal ── */
+        .section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Section Headers ── */
+        .section-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .section h2 {
+            font-size: clamp(28px, 3vw, 40px);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 12px;
+        }
+
+        .section h2 .highlight { color: var(--brand); }
+        .section h2 .accent-text { color: var(--accent); }
+
+        .lead {
+            font-size: 16px;
+            color: var(--muted);
+            max-width: 680px;
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            padding: 60px 0;
+        }
+
+        .hero .eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 28px;
+        }
+
+        .hero h1 .accent { color: var(--accent); }
+
+        .hero .sub {
+            font-size: 17px;
+            color: var(--muted);
+            max-width: 680px;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .hero .sub2 {
+            font-size: 14px;
+            color: color-mix(in srgb, var(--muted) 70%, transparent);
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        .scroll-cue {
+            font-size: 13px;
+            color: var(--muted);
+            animation: bob 2s ease-in-out infinite;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* ── Glassmorphic Cards ── */
+        .glass-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: color-mix(in srgb, var(--panel) 60%, transparent);
+            backdrop-filter: blur(10px);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        /* ── Grids ── */
+        .cols-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+        /* ── KPI Boxes ── */
+        .kpi-box {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px 16px;
+            text-align: center;
+        }
+
+        .kpi-box .kpi-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+
+        .kpi-box .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ── Capability Cards ── */
+        .cap-card {
+            background: color-mix(in srgb, var(--panel) 60%, transparent);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--brand);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .cap-tag {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--brand);
+            margin-bottom: 10px;
+        }
+
+        .cap-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .cap-card p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ── Live Panels ── */
+        .live-panel {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--panel);
+            overflow-x: auto;
+        }
+
+        .live-panel-head {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(90deg, var(--brand), var(--accent));
+            background-size: 100% 2px;
+            background-repeat: no-repeat;
+            background-position: top;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--brand);
+        }
+
+        .live-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .live-panel-title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .live-panel-body {
+            padding: 24px;
+            min-height: 80px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .live-panel-body .loading-msg {
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* ── Data Tables ── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .data-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--brand);
+            background: var(--panel-2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .data-table tbody tr:hover {
+            background: color-mix(in srgb, var(--brand) 5%, transparent);
+        }
+
+        /* ── Chart ── */
+        .chart-wrap {
+            height: 280px;
+            position: relative;
+        }
+
+        /* ── Insight Callouts ── */
+        .insight {
+            background: var(--panel-2);
+            border-left: 3px solid var(--brand);
+            border-radius: 6px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+
+        .insight h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .insight p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .insight.accent-border { border-left-color: var(--accent); }
+        .insight.ocean-border { border-left-color: var(--ocean); }
+        .insight.warn-border { border-left-color: var(--warn); }
+
+        /* ── Buttons ── */
+        .btn-save {
+            background: var(--brand);
+            color: var(--bg);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-family: var(--font);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-save:hover { opacity: 0.85; }
+
+        .btn-copy {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-family: var(--font);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .btn-copy:hover { border-color: var(--brand); }
+
+        .btn-open {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-family: var(--font);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+
+        .btn-open:hover { opacity: 0.85; }
+
+        /* ── Segment Cards ── */
+        .seg-card {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .seg-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .seg-card.active {
+            border-color: var(--accent);
+        }
+
+        .seg-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .seg-card p {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* ── Link Cards ── */
+        .link-card {
+            background: color-mix(in srgb, var(--panel) 60%, transparent);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, transform 0.2s;
+            display: block;
+        }
+
+        .link-card:hover {
+            border-color: var(--brand);
+            transform: translateY(-2px);
+        }
+
+        .link-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .link-card p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 32px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: color-mix(in srgb, var(--muted) 50%, transparent);
+        }
+
+        /* ── Section Spacing ── */
+        .section { padding: 80px 0; }
+        .section + .section { border-top: 1px solid var(--border); }
+
+        .mb-20 { margin-bottom: 20px; }
+        .mb-32 { margin-bottom: 32px; }
+        .mt-20 { margin-top: 20px; }
+
+        /* ── Segment Preview (hidden) ── */
+        #segmentPreview { display: none; }
+        #segmentPreview.show { display: block; margin-top: 24px; }
+
+        /* ── Stats list inside live panel ── */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .stat-row:last-child { border-bottom: none; }
+        .stat-row .stat-label { color: var(--muted); }
+        .stat-row .stat-val { font-weight: 700; color: var(--text); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .topbar-nav { display: none; }
+            .cols-2, .cols-3 { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 28px; }
+            .app { padding: 0 16px 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ Topbar -->
+<div class="topbar">
+    <div class="topbar-brand">
+        <img src="https://amperity-static-assets.s3-us-west-2.amazonaws.com/resources/img/amp_logo_white.svg" alt="Amperity">
+        <div class="pipe"></div>
+        <span class="title">Identity Intelligence</span>
+        <span class="demo-badge">Internal Demo</span>
+    </div>
+    <nav class="topbar-nav">
+        <a href="/">Search</a>
+        <a href="/tools">Data Quality</a>
+        <a href="/cotm">Value View</a>
+        <a href="/demo" class="active">Demo</a>
+        <a href="/presentation">Presentation</a>
+        <a href="/deck">Deck</a>
+        <a href="/ai">AI</a>
+    </nav>
+</div>
+
+<div class="app">
+
+<!-- ═══════════════════════════════════════════════════════════ Hero -->
+<section class="hero section">
+    <div class="eyebrow">Internal Demo &mdash; Atlas Motors Identity Intelligence</div>
+    <h1>A real-time intelligence layer<br>built <span class="accent">on top of</span> Amperity</h1>
+    <p class="sub">This is a proof of concept demonstrating what becomes possible when Amperity's identity resolution is working at scale. It connects to Atlas Motors live production tenant and makes the platform's output transparent, auditable, and client-presentable.</p>
+    <p class="sub2">Everything below pulls from live production data through Amperity's OAuth2 + Transit+JSON query API. No mocks, no screenshots, no static slides.</p>
+    <div class="scroll-cue">&#8595; Scroll to explore</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 01 Identity Pulse -->
+<section class="section" id="sec-pulse">
+    <div class="section-num">01</div>
+    <h2>One tenant. <span class="highlight">Complete visibility.</span></h2>
+    <p class="lead">A single query to Atlas Motors production tenant returns the full unified identity health picture &mdash; total customers, source records, dedup rate, and merge quality.</p>
+
+    <div class="cols-3 mb-32" id="pulseKpis">
+        <div class="kpi-box">
+            <div class="kpi-value" id="kpiUnified">--</div>
+            <div class="kpi-label">Unified Customers</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-value" id="kpiRecords">--</div>
+            <div class="kpi-label">Source Records</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-value" id="kpiDedup">--</div>
+            <div class="kpi-label">Dedup Rate</div>
+        </div>
+    </div>
+
+    <div class="live-panel">
+        <div class="live-panel-head">
+            <div class="live-badge"><span class="dot"></span> LIVE</div>
+            <span class="live-panel-title">Identity Summary</span>
+        </div>
+        <div class="live-panel-body" id="pulseSummary">
+            <span class="loading-msg">Loading identity pulse...</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 02 Explainability -->
+<section class="section" id="sec-explain">
+    <div class="section-num">02</div>
+    <h2>The <span class="highlight">why</span> behind every merge</h2>
+    <p class="lead">Every identity decision is traceable. We expose confidence scores, merge narratives, and variant detection so stakeholders can audit and trust the output.</p>
+
+    <div class="cols-2 mb-32">
+        <div class="cap-card">
+            <div class="cap-tag">Capability</div>
+            <h3>Confidence Scoring</h3>
+            <p>Every merge is scored with a numeric confidence level derived from field-level matching signals across name, email, phone, and address.</p>
+        </div>
+        <div class="cap-card">
+            <div class="cap-tag">Capability</div>
+            <h3>Merge Narrative</h3>
+            <p>Human-readable explanation of why two records were merged, including which fields matched, which were fuzzy, and what the deciding signal was.</p>
+        </div>
+        <div class="cap-card">
+            <div class="cap-tag">Capability</div>
+            <h3>Name Variant Detection</h3>
+            <p>Identifies and groups name variations (Pat/Patrick, Liz/Elizabeth) that Stitch resolved into the same unified customer.</p>
+        </div>
+        <div class="cap-card">
+            <div class="cap-tag">Capability</div>
+            <h3>Drift Monitoring</h3>
+            <p>Tracks identity stability over time. Alerts when merge patterns shift unexpectedly, ensuring durable IDs remain durable.</p>
+        </div>
+    </div>
+
+    <div class="live-panel">
+        <div class="live-panel-head">
+            <div class="live-badge"><span class="dot"></span> LIVE</div>
+            <span class="live-panel-title">Name Variant Matches</span>
+        </div>
+        <div class="live-panel-body" id="variantsBody">
+            <span class="loading-msg">Loading name variants...</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 03 Data Quality -->
+<section class="section" id="sec-quality">
+    <div class="section-num">03</div>
+    <h2>Dedup impact. <span class="highlight">Source by source.</span></h2>
+    <p class="lead">Every data source has a different deduplication profile. We break it down so you can see where Amperity adds the most consolidation value.</p>
+
+    <div class="cols-2 mb-32">
+        <div class="live-panel">
+            <div class="live-panel-head">
+                <div class="live-badge"><span class="dot"></span> LIVE</div>
+                <span class="live-panel-title">Dedup Resolution</span>
+            </div>
+            <div class="live-panel-body" id="dedupBody">
+                <span class="loading-msg">Loading dedup scorecard...</span>
+            </div>
+        </div>
+        <div class="live-panel">
+            <div class="live-panel-head">
+                <div class="live-badge"><span class="dot"></span> LIVE</div>
+                <span class="live-panel-title">Source Completeness</span>
+            </div>
+            <div class="live-panel-body" id="sourceBody">
+                <span class="loading-msg">Loading source scorecard...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="live-panel">
+        <div class="live-panel-head">
+            <div class="live-badge"><span class="dot"></span> LIVE</div>
+            <span class="live-panel-title">Dedup Rate by Source</span>
+        </div>
+        <div class="live-panel-body">
+            <div class="chart-wrap">
+                <canvas id="dedupChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 04 Stitch Performance -->
+<section class="section" id="sec-stitch">
+    <div class="section-num">04</div>
+    <h2>Match quality. <span class="highlight">Score by score.</span></h2>
+    <p class="lead">Every pair of records receives a match score. Here's the full distribution across all match categories, plus records contributed by each source.</p>
+
+    <div class="cols-2 mb-32">
+        <div class="live-panel">
+            <div class="live-panel-head">
+                <div class="live-badge"><span class="dot"></span> LIVE</div>
+                <span class="live-panel-title">Match Score Distribution</span>
+            </div>
+            <div class="live-panel-body" id="stitchScoreBody">
+                <span class="loading-msg">Loading score distribution...</span>
+            </div>
+        </div>
+        <div class="live-panel">
+            <div class="live-panel-head">
+                <div class="live-badge"><span class="dot"></span> LIVE</div>
+                <span class="live-panel-title">Records by Source</span>
+            </div>
+            <div class="live-panel-body" id="stitchSourceBody">
+                <span class="loading-msg">Loading source records...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="cols-2">
+        <div class="live-panel">
+            <div class="live-panel-head">
+                <div class="live-badge"><span class="dot"></span> LIVE</div>
+                <span class="live-panel-title">Stitch Stats</span>
+            </div>
+            <div class="live-panel-body" id="stitchStatsBody">
+                <span class="loading-msg">Loading stitch stats...</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 05 Activation Pipeline -->
+<section class="section" id="sec-activation-pipeline">
+    <div class="section-num">05</div>
+    <h2>From identity to <span class="highlight">activation</span></h2>
+    <p class="lead">Atlas Motors runs 100+ orchestrations daily. See the activation patterns — delta loads, partitioned exports, xref tables, metrics, and CCPA — plus any currently running workflows.</p>
+
+    <div class="cols-3 mb-32" id="activationKpis">
+        <div class="kpi-box">
+            <div class="kpi-value" id="kpiTotalOrch">--</div>
+            <div class="kpi-label">Total Orchestrations</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-value" id="kpiActiveOrch">--</div>
+            <div class="kpi-label">Active Orchestrations</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-value" id="kpiRunningWf">--</div>
+            <div class="kpi-label">Running Workflows</div>
+        </div>
+    </div>
+
+    <div class="cols-2 mb-32">
+        <div class="live-panel">
+            <div class="live-panel-head">
+                <div class="live-badge"><span class="dot"></span> LIVE</div>
+                <span class="live-panel-title">Orchestration Breakdown</span>
+            </div>
+            <div class="live-panel-body" id="orchBreakdownBody">
+                <span class="loading-msg">Loading orchestration patterns...</span>
+            </div>
+        </div>
+        <div class="live-panel">
+            <div class="live-panel-head">
+                <div class="live-badge"><span class="dot"></span> LIVE</div>
+                <span class="live-panel-title">Currently Running</span>
+            </div>
+            <div class="live-panel-body" id="runningWfBody">
+                <span class="loading-msg">Loading running workflows...</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 06 Golden Record -->
+<section class="section" id="sec-golden">
+    <div class="section-num">06</div>
+    <h2>One customer. <span class="highlight">Every system.</span></h2>
+    <p class="lead">The crosswalk shows how a single unified customer connects across every source system &mdash; Online, In-Store POS, Loyalty, Email, and CRM.</p>
+
+    <div class="live-panel">
+        <div class="live-panel-head">
+            <div class="live-badge"><span class="dot"></span> LIVE</div>
+            <span class="live-panel-title">Multi-Source Crosswalk Sample</span>
+        </div>
+        <div class="live-panel-body" id="crosswalkBody">
+            <span class="loading-msg">Loading crosswalk sample...</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 07 Activation -->
+<section class="section" id="sec-activation">
+    <div class="section-num">07</div>
+    <h2>From identity to <span class="highlight">action</span></h2>
+    <p class="lead">Pre-built segments demonstrate how unified identity powers audience activation. Click any segment to preview live results from the production tenant.</p>
+
+    <div class="cols-3 mb-32" id="segmentGrid" style="grid-template-columns: repeat(3, 1fr);">
+        <!-- Segment cards rendered by JS -->
+    </div>
+
+    <div id="segmentPreview" class="live-panel">
+        <div class="live-panel-head">
+            <div class="live-badge"><span class="dot"></span> LIVE</div>
+            <span class="live-panel-title" id="segPreviewTitle">Segment Preview</span>
+        </div>
+        <div class="live-panel-body" id="segPreviewBody">
+            <span class="loading-msg">Select a segment above...</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 08 Three Views -->
+<section class="section" id="sec-views">
+    <div class="section-num">08</div>
+    <h2>Built for <span class="highlight">different rooms</span></h2>
+    <p class="lead">The same identity data powers three distinct interfaces, each designed for a different audience and conversation.</p>
+
+    <div class="cols-3">
+        <a href="/" class="link-card">
+            <h3>Identity Search</h3>
+            <p>Look up any customer by email, phone, or ID. See their full unified profile and every record that contributed to it.</p>
+        </a>
+        <a href="/tools" class="link-card">
+            <h3>Data Quality</h3>
+            <p>Cluster health, oversized clusters, multi-surname detection, source overlap analysis, and stitch performance metrics.</p>
+        </a>
+        <a href="/cotm" class="link-card">
+            <h3>Value View</h3>
+            <p>Renewal-ready narrative with value drivers, competitive positioning, and strategic discovery questions for the Atlas Motors account.</p>
+        </a>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ 09 What This Proves -->
+<section class="section" id="sec-proof">
+    <div class="section-num">09</div>
+    <h2>Amperity's output is <span class="highlight">extensible</span></h2>
+    <p class="lead">This proof of concept was built entirely on Amperity's public API surface. Everything here is replicable for any tenant.</p>
+
+    <div class="insight">
+        <h4>API-First Architecture</h4>
+        <p>Every data point on this page comes from Amperity's OAuth2-authenticated query API. The platform's output is not locked inside the UI &mdash; it is fully programmable.</p>
+    </div>
+    <div class="insight accent-border">
+        <h4>Zero Infrastructure Overhead</h4>
+        <p>This application runs as a single lightweight Flask server. No data warehouse, no ETL pipeline, no additional infrastructure. It queries Amperity in real time.</p>
+    </div>
+    <div class="insight ocean-border">
+        <h4>Client-Presentable by Default</h4>
+        <p>The same data that powers internal operations can be surfaced in a format suitable for executive review, client presentations, and renewal conversations.</p>
+    </div>
+    <div class="insight warn-border">
+        <h4>Replicable Across Accounts</h4>
+        <p>This engine is not Atlas Motors-specific infrastructure. The same pattern can be deployed for any Amperity tenant with API access &mdash; any retail brand, any industry vertical.</p>
+    </div>
+</section>
+
+</div><!-- /.app -->
+
+<!-- ═══════════════════════════════════════════════════════════ Footer -->
+<div class="footer">
+    AMPERITY &middot; IDENTITY INTELLIGENCE ENGINE &middot; INTERNAL DEMO &middot; NOT FOR DISTRIBUTION
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ JavaScript -->
+<script>
+/* ── Scroll Reveal ── */
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+    });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+/* ── Helpers ── */
+function fmt(n) {
+    if (n == null) return '--';
+    n = Number(n);
+    if (isNaN(n)) return '--';
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return n.toLocaleString();
+}
+
+function pct(n) {
+    if (n == null) return '--';
+    n = Number(n);
+    if (isNaN(n)) return '--';
+    return n.toFixed(1) + '%';
+}
+
+let chartInstances = {};
+function destroyChart(id) {
+    if (chartInstances[id]) {
+        chartInstances[id].destroy();
+        delete chartInstances[id];
+    }
+}
+
+async function apiFetch(url, opts) {
+    try {
+        const res = await fetch(url, opts);
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+            throw new Error('Non-JSON response from ' + url);
+        }
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        return data;
+    } catch (e) {
+        console.error('apiFetch error:', url, e);
+        throw e;
+    }
+}
+
+function makeTable(cols, rows) {
+    if (!rows || rows.length === 0) return '<p style="color:var(--muted);font-style:italic;">No data returned.</p>';
+    let html = '<table class="data-table"><thead><tr>';
+    cols.forEach(c => { html += '<th>' + c + '</th>'; });
+    html += '</tr></thead><tbody>';
+    rows.forEach(r => {
+        html += '<tr>';
+        cols.forEach(c => {
+            let v = r[c] != null ? r[c] : '';
+            html += '<td>' + v + '</td>';
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    return html;
+}
+
+/* ── 01 Identity Pulse ── */
+async function loadPulse() {
+    try {
+        const data = await apiFetch('/api/cross-region-pulse');
+        const keys = Object.keys(data);
+        if (keys.length === 0) {
+            document.getElementById('pulseSummary').innerHTML = '<span style="color:var(--danger);">No tenant data returned.</span>';
+            return;
+        }
+
+        // Single tenant - take the first (and only) one
+        const region = data[keys[0]];
+        if (region.error) {
+            document.getElementById('pulseSummary').innerHTML = '<span style="color:var(--danger);">' + region.error + '</span>';
+            return;
+        }
+
+        const uc = region.unified_customers || region.total_unified || region.unique_amperity_ids || 0;
+        const sr = region.source_records || region.total_records || 0;
+        const rate = sr > 0 && uc > 0 ? ((1 - uc / sr) * 100) : 0;
+
+        document.getElementById('kpiUnified').textContent = fmt(uc);
+        document.getElementById('kpiRecords').textContent = fmt(sr);
+        document.getElementById('kpiDedup').textContent = pct(rate);
+
+        // Build summary
+        let summaryHtml = '';
+        summaryHtml += '<div class="stat-row"><span class="stat-label">Tenant</span><span class="stat-val">' + (region.tenant || region.name || keys[0]) + '</span></div>';
+        summaryHtml += '<div class="stat-row"><span class="stat-label">Unified Customers</span><span class="stat-val">' + fmt(uc) + '</span></div>';
+        summaryHtml += '<div class="stat-row"><span class="stat-label">Source Records</span><span class="stat-val">' + fmt(sr) + '</span></div>';
+        summaryHtml += '<div class="stat-row"><span class="stat-label">Dedup Rate</span><span class="stat-val">' + pct(rate) + '</span></div>';
+
+        if (region.source_count) {
+            summaryHtml += '<div class="stat-row"><span class="stat-label">Data Sources</span><span class="stat-val">' + region.source_count + '</span></div>';
+        }
+        if (region.avg_cluster_size) {
+            summaryHtml += '<div class="stat-row"><span class="stat-label">Avg Cluster Size</span><span class="stat-val">' + Number(region.avg_cluster_size).toFixed(2) + '</span></div>';
+        }
+        if (region.max_cluster_size) {
+            summaryHtml += '<div class="stat-row"><span class="stat-label">Max Cluster Size</span><span class="stat-val">' + fmt(region.max_cluster_size) + '</span></div>';
+        }
+        if (region.single_record_clusters) {
+            summaryHtml += '<div class="stat-row"><span class="stat-label">Single-Record Clusters</span><span class="stat-val">' + fmt(region.single_record_clusters) + '</span></div>';
+        }
+
+        document.getElementById('pulseSummary').innerHTML = summaryHtml;
+    } catch (e) {
+        document.getElementById('pulseSummary').innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+}
+
+/* ── 02 Name Variants ── */
+async function loadVariants() {
+    try {
+        const data = await apiFetch('/api/name-variants?limit=10');
+        const rows = Array.isArray(data) ? data : (data.results || data.rows || []);
+        if (rows.length === 0) {
+            document.getElementById('variantsBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No name variant data returned.</p>';
+            return;
+        }
+        const cols = Object.keys(rows[0]);
+        document.getElementById('variantsBody').innerHTML = makeTable(cols, rows);
+    } catch (e) {
+        document.getElementById('variantsBody').innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+}
+
+/* ── 03 Dedup + Sources ── */
+function fmtNum(n) {
+    n = Number(n) || 0;
+    if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+    if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+    return n.toLocaleString();
+}
+
+function dedupColor(rate) {
+    if (rate >= 40) return 'var(--accent)';
+    if (rate >= 20) return 'var(--brand)';
+    if (rate >= 10) return 'var(--ocean)';
+    return 'var(--muted)';
+}
+
+async function loadDedup() {
+    try {
+        const data = await apiFetch('/api/dedup-scorecard');
+        const rows = Array.isArray(data) ? data : (data.results || data.rows || []);
+        if (rows.length === 0) {
+            document.getElementById('dedupBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No dedup data returned.</p>';
+            return;
+        }
+
+        const keys = Object.keys(rows[0]);
+        const srcKey = keys.find(k => /source|datasource|data_source/i.test(k)) || keys[0];
+        const rateKey = keys.find(k => /rate|dedup.*pct|percent/i.test(k));
+        const removedKey = keys.find(k => /removed|duplicates/i.test(k));
+        const totalKey = keys.find(k => /source_records|total|raw/i.test(k));
+
+        let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+        rows.forEach(r => {
+            const name = (r[srcKey] || '').replace(/_stitch$/, '').replace(/_/g, ' ');
+            const rate = Number(r[rateKey]) || 0;
+            const removed = removedKey ? Number(r[removedKey]) || 0 : 0;
+            const total = totalKey ? Number(r[totalKey]) || 0 : 0;
+            const color = dedupColor(rate);
+
+            html += `<div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:160px;font-size:11px;color:var(--text);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r[srcKey]}">${name}</div>
+                <div style="flex:1;height:24px;background:var(--panel-2);border-radius:4px;overflow:hidden;position:relative;">
+                    <div style="width:${Math.min(rate, 100)}%;height:100%;background:${color};border-radius:4px;transition:width 0.6s ease;"></div>
+                    <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--text);">${rate.toFixed(1)}%</span>
+                </div>
+                <div style="width:80px;font-size:10px;color:var(--muted);text-align:right;" title="${removed.toLocaleString()} removed">${fmtNum(removed)} dup</div>
+            </div>`;
+        });
+        html += '</div>';
+
+        document.getElementById('dedupBody').innerHTML = html;
+        buildDedupChart(rows);
+    } catch (e) {
+        document.getElementById('dedupBody').innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+}
+
+function buildDedupChart(rows) {
+    destroyChart('dedup');
+    const canvas = document.getElementById('dedupChart');
+    if (!canvas || rows.length === 0) return;
+
+    // Try to find source and rate columns
+    const keys = Object.keys(rows[0]);
+    const srcKey = keys.find(k => /source|datasource|data_source/i.test(k)) || keys[0];
+    const rateKey = keys.find(k => /rate|dedup|pct|percent/i.test(k));
+    const rawKey = keys.find(k => /raw|total|before/i.test(k));
+    const dedupKey = keys.find(k => /unified|after|deduped/i.test(k));
+
+    let labels = rows.map(r => r[srcKey] || '');
+    let values;
+
+    if (rateKey) {
+        values = rows.map(r => Number(r[rateKey]) || 0);
+    } else if (rawKey && dedupKey) {
+        values = rows.map(r => {
+            const raw = Number(r[rawKey]) || 1;
+            const ded = Number(r[dedupKey]) || 0;
+            return ((1 - ded / raw) * 100);
+        });
+    } else {
+        // fallback: use second numeric column
+        const numKey = keys.find(k => k !== srcKey && !isNaN(Number(rows[0][k])));
+        values = rows.map(r => Number(r[numKey]) || 0);
+    }
+
+    chartInstances['dedup'] = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Dedup Rate',
+                data: values,
+                backgroundColor: 'rgba(84, 211, 222, 0.6)',
+                borderColor: '#54d3de',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.parsed.y.toFixed(1) + '%'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#A0A7AF', font: { family: 'Montserrat', size: 10 } },
+                    grid: { color: '#282B2E' }
+                },
+                y: {
+                    ticks: {
+                        color: '#A0A7AF',
+                        font: { family: 'Montserrat', size: 10 },
+                        callback: v => v + '%'
+                    },
+                    grid: { color: '#282B2E' }
+                }
+            }
+        }
+    });
+}
+
+function heatColor(pct) {
+    if (pct >= 90) return 'rgba(234,255,95,0.85)';
+    if (pct >= 70) return 'rgba(84,211,222,0.7)';
+    if (pct >= 40) return 'rgba(0,160,178,0.5)';
+    if (pct > 0)   return 'rgba(0,75,87,0.5)';
+    return 'rgba(255,255,255,0.04)';
+}
+function heatText(pct) {
+    if (pct >= 70) return 'var(--bg)';
+    if (pct > 0) return 'var(--text)';
+    return 'var(--border)';
+}
+
+async function loadSources() {
+    try {
+        const data = await apiFetch('/api/source-scorecard');
+        const rows = Array.isArray(data) ? data : (data.results || data.rows || []);
+        if (rows.length === 0) {
+            document.getElementById('sourceBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No source data returned.</p>';
+            return;
+        }
+
+        const keys = Object.keys(rows[0]);
+        const srcKey = keys.find(k => /source|datasource|data_source/i.test(k)) || keys[0];
+        const totalKey = keys.find(k => /total/i.test(k));
+        const fieldKeys = keys.filter(k => k !== srcKey && k !== totalKey && /has_/i.test(k));
+
+        // Column labels: strip "has_" prefix
+        const fieldLabels = fieldKeys.map(k => k.replace(/^has_/i, '').replace(/_/g, ' '));
+
+        let html = '<div style="overflow-x:auto;">';
+        html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+
+        // Header
+        html += '<tr><td style="padding:4px 8px;"></td>';
+        fieldLabels.forEach(l => {
+            html += `<td style="padding:4px 6px;text-align:center;color:var(--muted);font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:0.3px;">${l}</td>`;
+        });
+        html += '</tr>';
+
+        // Rows
+        rows.forEach(r => {
+            const name = (r[srcKey] || '').replace(/_stitch$/, '').replace(/_/g, ' ');
+            const total = Number(r[totalKey]) || 1;
+
+            html += `<tr><td style="padding:5px 8px;color:var(--text);font-size:10px;white-space:nowrap;text-align:right;max-width:140px;overflow:hidden;text-overflow:ellipsis;" title="${r[srcKey]}">${name}</td>`;
+
+            fieldKeys.forEach(k => {
+                const val = Number(r[k]) || 0;
+                const pct = (val / total) * 100;
+                const bg = heatColor(pct);
+                const fg = heatText(pct);
+                const label = pct >= 1 ? Math.round(pct) + '%' : (val > 0 ? '<1%' : '—');
+
+                html += `<td style="padding:4px 3px;text-align:center;">
+                    <div style="background:${bg};color:${fg};border-radius:4px;padding:6px 4px;font-weight:600;font-size:10px;min-width:42px;" title="${val.toLocaleString()} / ${total.toLocaleString()}">${label}</div>
+                </td>`;
+            });
+            html += '</tr>';
+        });
+
+        html += '</table></div>';
+
+        // Legend
+        html += `<div style="display:flex;gap:12px;margin-top:10px;justify-content:flex-end;font-size:9px;color:var(--muted);">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,0.04);vertical-align:middle;margin-right:3px;border:1px solid var(--border);"></span>0%</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(0,75,87,0.5);vertical-align:middle;margin-right:3px;"></span>1-39%</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(0,160,178,0.5);vertical-align:middle;margin-right:3px;"></span>40-69%</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(84,211,222,0.7);vertical-align:middle;margin-right:3px;"></span>70-89%</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(234,255,95,0.85);vertical-align:middle;margin-right:3px;"></span>90%+</span>
+        </div>`;
+
+        document.getElementById('sourceBody').innerHTML = html;
+    } catch (e) {
+        document.getElementById('sourceBody').innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+}
+
+/* ── 04 Stitch Performance ── */
+const TIER_ORDER = ['EXACT','EXCELLENT','HIGH','MODERATE','WEAK','NON-MATCH'];
+const TIER_COLORS = {EXACT:'var(--brand)',EXCELLENT:'#10B981',HIGH:'var(--ocean)',MODERATE:'#F59E0B',WEAK:'#F97316','NON-MATCH':'#EF4444'};
+const TIER_LABELS = {EXACT:'Exact Match',EXCELLENT:'Excellent',HIGH:'High',MODERATE:'Moderate',WEAK:'Weak','NON-MATCH':'Non-Match'};
+
+async function loadStitchSection() {
+    try {
+        const [sc, sr, st] = await Promise.all([
+            apiFetch('/api/stitch-score-distribution'),
+            apiFetch('/api/stitch-records-per-source'),
+            apiFetch('/api/stitch-stats'),
+        ]);
+
+        // Score distribution — horizontal bars
+        const scoreRows = Array.isArray(sc) ? sc : [];
+        if (scoreRows.length) {
+            const sorted = [...scoreRows].sort((a,b) => TIER_ORDER.indexOf(a.match_category) - TIER_ORDER.indexOf(b.match_category));
+            const maxCount = Math.max(...sorted.map(d => Number(d.pair_count) || 0));
+
+            let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            sorted.forEach(d => {
+                const cat = d.match_category || 'Unknown';
+                const count = Number(d.pair_count) || 0;
+                const pct = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                const color = TIER_COLORS[cat] || 'var(--muted)';
+                const label = TIER_LABELS[cat] || cat;
+
+                html += `<div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:90px;font-size:11px;color:var(--text);text-align:right;font-weight:600;">${label}</div>
+                    <div style="flex:1;height:28px;background:var(--panel-2);border-radius:4px;overflow:hidden;position:relative;">
+                        <div style="width:${Math.min(pct, 100)}%;height:100%;background:${color};border-radius:4px;transition:width 0.6s ease;"></div>
+                        <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--text);">${fmtNum(count)}</span>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('stitchScoreBody').innerHTML = html;
+        } else {
+            document.getElementById('stitchScoreBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No score data returned.</p>';
+        }
+
+        // Records by source — horizontal bars
+        const srcRows = Array.isArray(sr) ? sr : [];
+        if (srcRows.length) {
+            const keys = Object.keys(srcRows[0]);
+            const srcKey = keys.find(k => /source|datasource/i.test(k)) || keys[0];
+            const recKey = keys.find(k => /record_count|records|total/i.test(k));
+            const uidKey = keys.find(k => /unique_ids|unique/i.test(k));
+            const maxRec = Math.max(...srcRows.map(d => Number(d[recKey]) || 0));
+
+            let html = '<div style="display:flex;flex-direction:column;gap:6px;">';
+            srcRows.forEach(d => {
+                const name = (d[srcKey] || '').replace(/_stitch$/i, '').replace(/^CDT_/i, '').replace(/_/g, ' ');
+                const records = Number(d[recKey]) || 0;
+                const unique = uidKey ? (Number(d[uidKey]) || 0) : 0;
+                const pct = maxRec > 0 ? (records / maxRec) * 100 : 0;
+                const dedupRate = records > 0 && unique > 0 ? ((1 - unique / records) * 100).toFixed(1) : null;
+
+                html += `<div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:120px;font-size:10px;color:var(--text);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${d[srcKey]}">${name}</div>
+                    <div style="flex:1;height:22px;background:var(--panel-2);border-radius:4px;overflow:hidden;position:relative;">
+                        <div style="width:${Math.min(pct, 100)}%;height:100%;background:var(--brand);opacity:0.7;border-radius:4px;transition:width 0.6s ease;"></div>
+                        <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--text);">${fmtNum(records)}</span>
+                    </div>
+                    ${dedupRate !== null ? `<div style="width:50px;font-size:10px;color:var(--muted);text-align:right;" title="Dedup: ${dedupRate}%">${dedupRate}%</div>` : ''}
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('stitchSourceBody').innerHTML = html;
+        } else {
+            document.getElementById('stitchSourceBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No source data returned.</p>';
+        }
+
+        // Stitch stats — key metrics
+        const s = Array.isArray(st) ? st[0] : st;
+        if (s) {
+            document.getElementById('stitchStatsBody').innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:var(--brand);">${fmtNum(Number(s.total_clusters || s.unique_ids || 0))}</div>
+                        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Total Clusters</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:var(--text);">${fmtNum(Number(s.total_records || 0))}</div>
+                        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Total Records</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:var(--accent);">${Number(s.avg_cluster_size || 0).toFixed(1)}</div>
+                        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Avg Cluster Size</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:var(--danger,#EF4444);">${fmtNum(Number(s.max_cluster_size || 0))}</div>
+                        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Max Cluster</div>
+                    </div>
+                </div>`;
+        } else {
+            document.getElementById('stitchStatsBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No stitch stats returned.</p>';
+        }
+
+    } catch (e) {
+        document.getElementById('stitchScoreBody').innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+}
+
+/* ── 05 Crosswalk ── */
+async function loadCrosswalk() {
+    try {
+        const data = await apiFetch('/api/crosswalk-sample?limit=10');
+        const rows = Array.isArray(data) ? data : (data.results || data.rows || []);
+        if (rows.length === 0) {
+            document.getElementById('crosswalkBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No crosswalk data returned.</p>';
+            return;
+        }
+        const cols = Object.keys(rows[0]);
+        document.getElementById('crosswalkBody').innerHTML = makeTable(cols, rows);
+    } catch (e) {
+        document.getElementById('crosswalkBody').innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+}
+
+/* ── 06 Segments ── */
+const SEGMENTS = [
+    {
+        name: 'Cross-Channel Shoppers',
+        desc: 'Customers appearing in 3 or more distinct data sources, indicating omnichannel engagement across online, in-store, and loyalty.',
+        sql: "SELECT amperity_id, given_name, surname, email, datasource FROM Unified_Coalesced WHERE amperity_id IN (SELECT amperity_id FROM Unified_Coalesced GROUP BY amperity_id HAVING COUNT(DISTINCT datasource) >= 3) LIMIT 50"
+    },
+    {
+        name: 'High-Value Loyalty Members',
+        desc: 'Star Rewards members matched to at least one other data source — engaged repeat buyers visible only through unified identity.',
+        sql: "SELECT uc.amperity_id, uc.given_name, uc.surname, uc.email, uc.datasource FROM Unified_Coalesced uc WHERE uc.amperity_id IN (SELECT a.amperity_id FROM Unified_Coalesced a WHERE a.datasource = 'loyal_acct_stitch' INTERSECT SELECT b.amperity_id FROM Unified_Coalesced b WHERE b.datasource != 'loyal_acct_stitch') LIMIT 50"
+    },
+    {
+        name: 'Online-to-Store Bridge',
+        desc: 'Shoppers with both mobile/digital registration and credit or account records — cross-channel identity proven.',
+        sql: "SELECT uc.amperity_id, uc.given_name, uc.surname, uc.email, uc.datasource FROM Unified_Coalesced uc WHERE uc.amperity_id IN (SELECT a.amperity_id FROM Unified_Coalesced a WHERE a.datasource IN ('CDT_mcy_mbl_rgstrtn_t_stitch','CDT_blm_mbl_rgstrtn_t_stitch') INTERSECT SELECT b.amperity_id FROM Unified_Coalesced b WHERE b.datasource IN ('crdt_classic_acct_mstr_stitch','merged_accounts_stitch')) LIMIT 50"
+    },
+    {
+        name: 'Email-Engaged Buyers',
+        desc: 'Email subscribers matched to transactional or loyalty records — digitally active customers with confirmed spend.',
+        sql: "SELECT uc.amperity_id, uc.given_name, uc.surname, uc.email, uc.datasource FROM Unified_Coalesced uc WHERE uc.amperity_id IN (SELECT a.amperity_id FROM Unified_Coalesced a WHERE a.datasource = 'CDT_cdm_email_mst' INTERSECT SELECT b.amperity_id FROM Unified_Coalesced b WHERE b.datasource IN ('merged_accounts_stitch','loyal_acct_stitch','crdt_classic_acct_mstr_stitch')) LIMIT 50"
+    },
+    {
+        name: 'Retention Risk: Single-Touch',
+        desc: 'Customers known from only one data source. Higher risk of incomplete identity and potential churn blind spots.',
+        sql: "SELECT amperity_id, given_name, surname, email, datasource FROM Unified_Coalesced WHERE amperity_id IN (SELECT amperity_id FROM Unified_Coalesced GROUP BY amperity_id HAVING COUNT(DISTINCT datasource) = 1) LIMIT 50"
+    }
+];
+
+let activeSegment = null;
+
+function renderSegments() {
+    const grid = document.getElementById('segmentGrid');
+    // 5 cards: 3 on top row, 2 on bottom
+    grid.innerHTML = SEGMENTS.map((seg, i) => `
+        <div class="seg-card" data-idx="${i}" onclick="selectSegment(${i})">
+            <h4>${seg.name}</h4>
+            <p>${seg.desc}</p>
+        </div>
+    `).join('');
+}
+
+async function selectSegment(idx) {
+    // Toggle active
+    document.querySelectorAll('.seg-card').forEach(c => c.classList.remove('active'));
+    const card = document.querySelector(`.seg-card[data-idx="${idx}"]`);
+    if (card) card.classList.add('active');
+
+    activeSegment = idx;
+    const seg = SEGMENTS[idx];
+    const preview = document.getElementById('segmentPreview');
+    preview.classList.add('show');
+    document.getElementById('segPreviewTitle').textContent = seg.name + ' - Preview';
+    document.getElementById('segPreviewBody').innerHTML = '<span class="loading-msg">Running segment query...</span>';
+
+    try {
+        const data = await apiFetch('/api/segment-preview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql: seg.sql })
+        });
+        const rows = data.results || [];
+        if (rows.length === 0) {
+            document.getElementById('segPreviewBody').innerHTML = '<p style="color:var(--muted);font-style:italic;">No results returned.</p>';
+            return;
+        }
+        const count = data.count || rows.length;
+        const cols = Object.keys(rows[0]);
+        const sqlEncoded = encodeURIComponent(seg.sql.replace(/\s*LIMIT\s+\d+\s*$/i, ''));
+        const queriesUrl = 'https://macys.amperity.com/?th=PYzlg#/queries';
+        document.getElementById('segPreviewBody').innerHTML =
+            '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
+              '<span style="font-size:12px;color:var(--accent);font-weight:700;">' + count + ' records returned</span>' +
+              '<button onclick="copySegSQL(' + idx + ')" style="font-size:11px;padding:4px 10px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:4px;cursor:pointer;font-weight:600">Copy SQL</button>' +
+              '<button onclick="copySegSQLAndOpen(' + idx + ', this)" style="font-size:11px;padding:4px 10px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:4px;cursor:pointer;font-weight:600">Copy SQL &amp; Open Queries</button>' +
+            '</div>' +
+            makeTable(cols, rows);
+    } catch (e) {
+        document.getElementById('segPreviewBody').innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+}
+
+function copySegSQL(idx) {
+    const btn = event.target;
+    const sql = SEGMENTS[idx].sql.replace(/\s*LIMIT\s+\d+\s*$/i, '');
+    navigator.clipboard.writeText(sql);
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy SQL'; }, 1500);
+}
+
+function copySegSQLAndOpen(idx, btn) {
+    const sql = SEGMENTS[idx].sql.replace(/\s*LIMIT\s+\d+\s*$/i, '');
+    window.open('https://macys.amperity.com/?th=PYzlg#/queries', '_blank');
+    navigator.clipboard.writeText(sql);
+    btn.textContent = 'Copied! Opening...';
+    setTimeout(() => { btn.innerHTML = 'Copy SQL &amp; Open Queries'; }, 2000);
+}
+
+/* ── 05: Activation Pipeline ── */
+async function loadActivationPipeline() {
+    try {
+        const data = await apiFetch('/api/activation-pipeline');
+        const total = Number(data.total_orchestrations) + (data.has_more ? 100 : 0);
+
+        // Update KPIs
+        document.getElementById('kpiTotalOrch').textContent = total + '+';
+        document.getElementById('kpiActiveOrch').textContent = data.active_groups || 0;
+        const runCount = data.running_count || 0;
+        document.getElementById('kpiRunningWf').innerHTML = runCount > 0
+            ? '<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--brand);animation:pulse 2s infinite;display:inline-block;"></span>' + runCount + '</span>'
+            : '<span style="color:var(--muted);">0</span>';
+
+        // Render orchestration breakdown
+        const cats = data.categories || {};
+        const catRows = [
+            { label: 'Delta Loads', val: cats.delta_loads || 0, color: 'var(--brand)', desc: 'Daily incremental data exports' },
+            { label: 'Partitioned Exports', val: cats.partitioned || 0, color: 'var(--ocean)', desc: '16-way ampid-partitioned sends' },
+            { label: 'Xref Exports', val: cats.xref || 0, color: 'var(--accent)', desc: 'Cross-reference table exports' },
+            { label: 'Metrics / Counts', val: cats.metrics || 0, color: 'var(--warn)', desc: 'Raw counts and match metrics' },
+            { label: 'CCPA', val: cats.ccpa || 0, color: '#9333EA', desc: 'Privacy compliance reports' },
+            { label: 'Other', val: cats.other || 0, color: 'var(--muted)', desc: 'Adhoc, nonmatch, catch-up' }
+        ];
+
+        let catHtml = '<div style="display:grid;gap:8px;">';
+        catRows.forEach(r => {
+            const pct = Math.min(100, (r.val / total) * 100);
+            catHtml += `
+                <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <div>
+                            <span style="font-size:13px;color:var(--text);font-weight:600;">${r.label}</span>
+                            <span style="font-size:11px;color:var(--muted);margin-left:8px;">${r.desc}</span>
+                        </div>
+                        <span style="font-size:15px;color:${r.color};font-weight:700;min-width:36px;text-align:right;">${r.val}</span>
+                    </div>
+                    <div style="height:6px;background:var(--panel-2);border-radius:3px;">
+                        <div style="height:100%;background:${r.color};border-radius:3px;width:${pct}%;transition:width .6s ease;"></div>
+                    </div>
+                </div>
+            `;
+        });
+        catHtml += '</div>';
+        document.getElementById('orchBreakdownBody').innerHTML = catHtml;
+
+        // Render running orchestrations + recent workflows
+        const running = data.running_orchestrations || [];
+        const recent = data.recent_workflows || [];
+        let rightHtml = '';
+
+        if (running.length > 0) {
+            rightHtml += '<div style="margin-bottom:16px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--brand);margin-bottom:8px;">Running Now</div>';
+            running.forEach(o => {
+                rightHtml += `
+                    <div style="padding:10px 12px;background:var(--panel-2);border-radius:8px;border-left:3px solid var(--brand);margin-bottom:6px;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:var(--brand);animation:pulse 2s infinite;flex-shrink:0;"></div>
+                            <span style="font-size:12px;font-weight:700;color:var(--text);">${o.name}</span>
+                        </div>
+                    </div>`;
+            });
+            rightHtml += '</div>';
+        }
+
+        rightHtml += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;">Recent Workflows</div>';
+        if (data.all_workflows_succeeded) {
+            rightHtml += '<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:rgba(84,211,222,0.1);border:1px solid rgba(84,211,222,0.2);margin-bottom:12px;font-size:11px;font-weight:700;color:var(--brand);">ALL SUCCEEDED &mdash; 20/20</div>';
+        }
+        rightHtml += '<div style="display:grid;gap:4px;">';
+        recent.forEach(wf => {
+            const name = wf.name || wf.workflow_id;
+            const shortName = name.length > 48 ? name.slice(0, 48) + '...' : name;
+            const date = wf.created_at ? new Date(wf.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+            const stateColor = wf.state === 'succeeded' ? 'var(--brand)' : wf.state === 'running' ? 'var(--accent)' : 'var(--danger)';
+            rightHtml += `
+                <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;">
+                    <div style="width:6px;height:6px;border-radius:50%;background:${stateColor};flex-shrink:0;"></div>
+                    <span style="color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${name}">${shortName}</span>
+                    <span style="color:var(--muted);flex-shrink:0;">${date}</span>
+                </div>`;
+        });
+        rightHtml += '</div>';
+
+        document.getElementById('runningWfBody').innerHTML = rightHtml;
+    } catch (e) {
+        console.error('loadActivationPipeline error:', e);
+        document.getElementById('orchBreakdownBody').innerHTML = '<span style="color:var(--danger);">Failed to load orchestration data</span>';
+        document.getElementById('runningWfBody').innerHTML = '<span style="color:var(--danger);">Failed to load workflow data</span>';
+    }
+}
+
+/* ── Load All ── */
+function loadAll() {
+    renderSegments();
+    loadPulse();
+    loadVariants();
+    loadDedup();
+    loadSources();
+    loadStitchSection();
+    loadActivationPipeline();
+    loadCrosswalk();
+}
+
+document.addEventListener('DOMContentLoaded', loadAll);
+</script>
+
+</body>
+</html>

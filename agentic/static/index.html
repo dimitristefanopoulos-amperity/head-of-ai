@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Multi-Tenant Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C0C0C;--surface:#141414;--card:#1a1a1a;--border:rgba(84,211,222,0.12);
+--teal:#54D3DE;--ocean:#00A0B2;--yellow:#EAFF5F;--green:#10B981;--red:#EF4444;--orange:#F59E0B;
+--white:#FFFFFF;--text:#E5E7EB;--muted:#6B7280;--dim:rgba(255,255,255,0.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.header{padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(84,211,222,0.03) 0%,transparent 100%)}
+.header-left{display:flex;align-items:center;gap:16px}
+.header-left img{height:22px}
+.header-brand{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--teal);letter-spacing:1px;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:16px}
+.header-status{font-size:11px;color:var(--muted)}
+.refresh-btn{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 16px;border-radius:5px;background:rgba(84,211,222,0.1);color:var(--teal);border:1px solid rgba(84,211,222,0.25);cursor:pointer;transition:all 0.15s;text-transform:uppercase}
+.refresh-btn:hover{background:rgba(84,211,222,0.2)}
+.refresh-btn:disabled{opacity:0.4;cursor:not-allowed}
+.accent-bar{height:3px;background:linear-gradient(90deg,var(--teal),var(--yellow),var(--teal));opacity:0.6}
+
+.main{max-width:1400px;margin:0 auto;padding:32px 40px}
+
+/* Portfolio summary */
+.portfolio-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center}
+.stat-val{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;margin-bottom:4px}
+.stat-val.teal{color:var(--teal)}.stat-val.yellow{color:var(--yellow)}.stat-val.green{color:var(--green)}.stat-val.white{color:var(--white)}.stat-val.orange{color:var(--orange)}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:600}
+
+/* Tenant grid */
+.tenant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:32px}
+.tenant-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0;overflow:hidden;transition:all 0.2s;cursor:pointer;text-decoration:none;color:inherit}
+.tenant-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 8px 32px rgba(84,211,222,0.08);cursor:default}
+.tenant-card.offline{opacity:0.3}
+.tc-header{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer}
+.tc-header:hover .tc-name{color:var(--teal)}
+.tc-name{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--white);text-transform:uppercase;letter-spacing:0.5px}
+.tc-status{width:8px;height:8px;border-radius:50%}
+.tc-status.online{background:var(--green);box-shadow:0 0 8px rgba(16,185,129,0.5)}
+.tc-status.offline{background:var(--red)}
+.tc-body{padding:16px 20px}
+.tc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tc-metric{display:flex;flex-direction:column}
+.tc-metric-val{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;color:var(--white)}
+.tc-metric-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:2px}
+.tc-bar{height:4px;background:var(--surface);border-radius:2px;margin-top:12px;overflow:hidden}
+.tc-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease-out}
+.tc-bar-fill.good{background:var(--green)}
+.tc-bar-fill.ok{background:var(--yellow)}
+.tc-bar-fill.warn{background:var(--orange)}
+.tc-bar-fill.bad{background:var(--red)}
+.tc-footer{padding:8px 20px 14px;display:flex;gap:8px;flex-wrap:wrap}
+.tc-tag{font-size:9px;font-weight:600;letter-spacing:0.5px;padding:3px 8px;border-radius:4px;text-transform:uppercase}
+.tc-tag.feat{background:rgba(84,211,222,0.08);color:var(--teal);border:1px solid rgba(84,211,222,0.2)}
+.tc-tag.vertical{background:rgba(234,255,95,0.08);color:var(--yellow);border:1px solid rgba(234,255,95,0.2)}
+
+/* Field completeness bars */
+.tc-fields{padding:0 20px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fc-row{display:flex;align-items:center;gap:8px}
+.fc-label{font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);width:42px;flex-shrink:0}
+.fc-bar{flex:1;height:6px;background:var(--surface);border-radius:3px;overflow:hidden}
+.fc-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease-out}
+.fc-pct{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;width:36px;text-align:right;flex-shrink:0}
+.fc-pct.high{color:var(--green)}.fc-pct.mid{color:var(--yellow)}.fc-pct.low{color:var(--orange)}.fc-pct.none{color:var(--red)}
+
+/* Quick action links */
+.tc-actions{padding:0 20px 14px;display:flex;gap:6px;flex-wrap:wrap}
+.tc-action{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.5px;padding:5px 12px;border-radius:5px;text-decoration:none;text-transform:uppercase;transition:all 0.15s;cursor:pointer}
+.tc-action.ai{background:rgba(84,211,222,0.1);color:var(--teal);border:1px solid rgba(84,211,222,0.25)}
+.tc-action.ai:hover{background:rgba(84,211,222,0.25)}
+.tc-action.strat{background:rgba(234,255,95,0.1);color:var(--yellow);border:1px solid rgba(234,255,95,0.25)}
+.tc-action.strat:hover{background:rgba(234,255,95,0.25)}
+.tc-action.dq{background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.25)}
+.tc-action.dq:hover{background:rgba(16,185,129,0.25)}
+.tc-action.search{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid rgba(255,255,255,0.1)}
+.tc-action.search:hover{background:rgba(255,255,255,0.1)}
+
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-num{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--yellow)}
+.section-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:1.5px}
+
+/* Loading */
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(12,12,12,0.8);display:flex;align-items:center;justify-content:center;z-index:100}
+.loading-text{font-family:'Montserrat',sans-serif;font-size:14px;color:var(--teal);font-weight:600}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-radius:50%;border-top-color:var(--teal);animation:spin 0.7s linear infinite;margin-right:10px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.footer{text-align:center;padding:32px;color:var(--dim);font-size:10px;border-top:1px solid var(--border);margin-top:40px;opacity:0.3}
+.footer span{color:var(--teal)}
+
+/* Empty state */
+.empty{text-align:center;padding:80px 40px;color:var(--muted)}
+.empty h2{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;color:var(--white);margin-bottom:12px}
+.empty p{font-size:14px;line-height:1.7;max-width:500px;margin:0 auto}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <img src="https://amperity-static-assets.s3-us-west-2.amazonaws.com/resources/img/amp_logo_white.svg" alt="Amperity">
+    <span class="header-brand">Multi-Tenant Command Center</span>
+  </div>
+  <div class="header-right">
+    <span class="header-status" id="lastUpdated"></span>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">Refresh</button>
+  </div>
+</div>
+<div class="accent-bar"></div>
+
+<div class="main">
+
+<!-- Portfolio summary -->
+<div class="portfolio-row" id="portfolioRow">
+  <div class="stat-card"><div class="stat-val teal" id="totalTenants">—</div><div class="stat-label">Tenants Online</div></div>
+  <div class="stat-card"><div class="stat-val white" id="totalProfiles">—</div><div class="stat-label">Unified Profiles</div></div>
+  <div class="stat-card"><div class="stat-val yellow" id="totalRecords">—</div><div class="stat-label">Source Records</div></div>
+  <div class="stat-card"><div class="stat-val green" id="avgDedup">—</div><div class="stat-label">Avg Dedup Rate</div></div>
+  <div class="stat-card"><div class="stat-val orange" id="totalSources">—</div><div class="stat-label">Total Sources</div></div>
+</div>
+
+<!-- Tenant cards -->
+<div class="section-header"><span class="section-num">01</span><span class="section-title">Tenant Health</span></div>
+<div class="tenant-grid" id="tenantGrid">
+  <div class="empty">
+    <h2>Scanning tenants...</h2>
+    <p><span class="spin"></span> Querying all connected tenant APIs for identity health data.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer"><span>Amperity</span> &middot; Multi-Tenant Command Center &middot; Identity Intelligence Layer</div>
+
+<script>
+const fmt = n => {
+  n = Number(n);
+  if (isNaN(n)) return '—';
+  if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+};
+
+const KNOWN_TENANTS = {
+  honda: {display:'Honda', vertical:'Automotive', port:null},
+  acme: {display:'Acme', vertical:'Demo', port:null},
+  atlas: {display:'Atlas Motors', vertical:'Automotive', port:null},
+  nfl: {display:'NFL', vertical:'Sports', port:null},
+  seahawks: {display:'Seahawks', vertical:'Sports', port:null},
+  macys: {display:"Macy's", vertical:'Retail', port:null},
+  gm: {display:'General Motors', vertical:'Automotive', port:null},
+};
+
+const TENANT_MATCH = {
+  'honda':'honda','americanhondamotor':'honda',
+  'acme':'acme',
+  'atlas motors':'atlas','atlasmotors':'atlas',
+  'nfl':'nfl',
+  'seahawks':'seahawks','seattleseahawks':'seahawks',
+  'macys':'macys',"macy's":'macys',
+  'middle east':'gm','gm':'gm','gmmeo':'gm','gmus':'gm','gmmexico':'gm',
+};
+
+let tenantData = {};
+
+async function discoverTenants() {
+  const ports = [...Array(20)].map((_,i)=>5080+i);
+  const found = {};
+
+  const promises = ports.map(async port => {
+    try {
+      const r = await fetch(`http://127.0.0.1:${port}/api/health`, {signal: AbortSignal.timeout(2000)});
+      if (!r.ok) return null;
+      const data = await r.json();
+      const regionName = (data.region_name || '').toLowerCase();
+      const tenant = (data.tenant || '').toLowerCase();
+      const key = TENANT_MATCH[regionName] || TENANT_MATCH[tenant];
+      if (key && !found[key]) {
+        found[key] = port;
+        if (KNOWN_TENANTS[key]) KNOWN_TENANTS[key].port = port;
+      }
+      return {key, port};
+    } catch(e) { return null; }
+  });
+
+  await Promise.all(promises);
+  return found;
+}
+
+async function fetchTenantData(key, port) {
+  try {
+    // Fetch health + field completeness in parallel
+    const [pulseR, scorecardR] = await Promise.all([
+      fetch(`http://127.0.0.1:${port}/api/cross-region-pulse`, {signal: AbortSignal.timeout(15000)}),
+      fetch(`http://127.0.0.1:${port}/api/source-scorecard`, {signal: AbortSignal.timeout(10000)}).catch(() => null),
+    ]);
+
+    const data = await pulseR.json();
+    const regions = data.regions || data;
+    const first = Object.values(regions)[0] || {};
+    const totalRecords = Number(first.total_records || first.source_records || first.summary?.total_records || 0);
+
+    // Field completeness from source scorecard
+    let emailPct = 0, phonePct = 0, namePct = 0, addrPct = 0;
+    if (scorecardR && scorecardR.ok) {
+      try {
+        const sources = await scorecardR.json();
+        if (Array.isArray(sources) && sources.length) {
+          const tot = sources.reduce((s,x) => s + Number(x.total_records||0), 0);
+          if (tot > 0) {
+            emailPct = sources.reduce((s,x) => s + Number(x.has_email||0), 0) / tot * 100;
+            phonePct = sources.reduce((s,x) => s + Number(x.has_phone||0), 0) / tot * 100;
+            namePct = sources.reduce((s,x) => s + Number(x.has_given_name||0), 0) / tot * 100;
+            addrPct = sources.reduce((s,x) => s + Number(x.has_address||x.has_postal||0), 0) / tot * 100;
+          }
+        }
+      } catch(e) {}
+    }
+
+    // Detect available routes
+    let hasStrategist = false, hasAI = false;
+    try {
+      const [aiR, stratR] = await Promise.all([
+        fetch(`http://127.0.0.1:${port}/ai`, {signal: AbortSignal.timeout(1000)}).catch(() => ({ok:false})),
+        fetch(`http://127.0.0.1:${port}/strategist`, {signal: AbortSignal.timeout(1000)}).catch(() => ({ok:false})),
+      ]);
+      hasAI = aiR.ok;
+      hasStrategist = stratR.ok;
+    } catch(e) {}
+
+    return {
+      key, port,
+      display: KNOWN_TENANTS[key]?.display || key,
+      vertical: KNOWN_TENANTS[key]?.vertical || '',
+      profiles: Number(first.total_profiles || first.unified_customers || first.summary?.total_profiles || 0),
+      records: totalRecords,
+      dedup: Number(first.dedup_rate || first.overall_dedup_rate || first.summary?.overall_dedup_rate || 0),
+      sources: Number(first.source_count || first.summary?.source_count || 0),
+      avgCluster: Number(first.avg_cluster_size || first.avg_records_per_id || first.summary?.avg_records_per_id || 0),
+      online: true,
+      regions: Object.keys(regions).length,
+      emailPct, phonePct, namePct, addrPct,
+      hasAI, hasStrategist,
+    };
+  } catch(e) {
+    return {
+      key, port,
+      display: KNOWN_TENANTS[key]?.display || key,
+      vertical: KNOWN_TENANTS[key]?.vertical || '',
+      profiles:0, records:0, dedup:0, sources:0, avgCluster:0,
+      online: false, regions: 0,
+      emailPct:0, phonePct:0, namePct:0, addrPct:0,
+      hasAI:false, hasStrategist:false,
+    };
+  }
+}
+
+function renderPortfolio(tenants) {
+  const online = tenants.filter(t => t.online);
+  const totalProfiles = online.reduce((s,t) => s + t.profiles, 0);
+  const totalRecords = online.reduce((s,t) => s + t.records, 0);
+  const totalSources = online.reduce((s,t) => s + t.sources, 0);
+  const avgDedup = online.length ? (online.reduce((s,t) => s + t.dedup, 0) / online.length) : 0;
+
+  document.getElementById('totalTenants').textContent = online.length;
+  document.getElementById('totalProfiles').textContent = fmt(totalProfiles);
+  document.getElementById('totalRecords').textContent = fmt(totalRecords);
+  document.getElementById('avgDedup').textContent = avgDedup.toFixed(1) + '%';
+  document.getElementById('totalSources').textContent = totalSources;
+}
+
+function dedupClass(rate) {
+  if (rate >= 70) return 'good';
+  if (rate >= 50) return 'ok';
+  if (rate >= 30) return 'warn';
+  return 'bad';
+}
+
+function fcClass(pct) {
+  if (pct >= 70) return 'high';
+  if (pct >= 40) return 'mid';
+  if (pct >= 10) return 'low';
+  return 'none';
+}
+
+function fcBar(label, pct) {
+  const cls = fcClass(pct);
+  const color = cls === 'high' ? 'var(--green)' : cls === 'mid' ? 'var(--yellow)' : cls === 'low' ? 'var(--orange)' : 'var(--red)';
+  return `<div class="fc-row">
+    <span class="fc-label">${label}</span>
+    <div class="fc-bar"><div class="fc-bar-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+    <span class="fc-pct ${cls}">${pct.toFixed(0)}%</span>
+  </div>`;
+}
+
+function renderTenants(tenants) {
+  const grid = document.getElementById('tenantGrid');
+  if (!tenants.length) {
+    grid.innerHTML = '<div class="empty"><h2>No tenants found</h2><p>No Amperity tenant apps detected on ports 5080-5099.</p></div>';
+    return;
+  }
+
+  tenants.sort((a,b) => {
+    if (a.online !== b.online) return b.online - a.online;
+    return b.profiles - a.profiles;
+  });
+
+  grid.innerHTML = tenants.map(t => `
+    <div class="tenant-card ${t.online ? '' : 'offline'}">
+      <div class="tc-header" onclick="window.open('http://127.0.0.1:${t.port}/','_blank')">
+        <span class="tc-name">${t.display}${t.regions > 1 ? ` (${t.regions} regions)` : ''}</span>
+        <span class="tc-status ${t.online ? 'online' : 'offline'}"></span>
+      </div>
+      <div class="tc-body">
+        <div class="tc-metrics">
+          <div class="tc-metric">
+            <span class="tc-metric-val">${fmt(t.profiles)}</span>
+            <span class="tc-metric-label">Unified Profiles</span>
+          </div>
+          <div class="tc-metric">
+            <span class="tc-metric-val">${fmt(t.records)}</span>
+            <span class="tc-metric-label">Source Records</span>
+          </div>
+          <div class="tc-metric">
+            <span class="tc-metric-val">${t.dedup.toFixed(1)}%</span>
+            <span class="tc-metric-label">Dedup Rate</span>
+          </div>
+          <div class="tc-metric">
+            <span class="tc-metric-val">${t.sources}</span>
+            <span class="tc-metric-label">Sources</span>
+          </div>
+        </div>
+        <div class="tc-bar"><div class="tc-bar-fill ${dedupClass(t.dedup)}" style="width:${Math.min(t.dedup, 100)}%"></div></div>
+      </div>
+      ${t.online ? `<div class="tc-fields">
+        ${fcBar('Email', t.emailPct)}
+        ${fcBar('Phone', t.phonePct)}
+        ${fcBar('Name', t.namePct)}
+        ${fcBar('Addr', t.addrPct)}
+      </div>` : ''}
+      <div class="tc-actions">
+        <a class="tc-action search" href="http://127.0.0.1:${t.port}/" target="_blank" onclick="event.stopPropagation()">Search</a>
+        <a class="tc-action dq" href="http://127.0.0.1:${t.port}/tools" target="_blank" onclick="event.stopPropagation()">Data Quality</a>
+        ${t.hasAI ? `<a class="tc-action ai" href="http://127.0.0.1:${t.port}/ai" target="_blank" onclick="event.stopPropagation()">AI</a>` : ''}
+        ${t.hasStrategist ? `<a class="tc-action strat" href="http://127.0.0.1:${t.port}/strategist" target="_blank" onclick="event.stopPropagation()">Strategist</a>` : ''}
+      </div>
+      <div class="tc-footer">
+        ${t.vertical ? `<span class="tc-tag vertical">${t.vertical}</span>` : ''}
+        ${t.avgCluster ? `<span class="tc-tag feat">${t.avgCluster.toFixed(1)}x avg cluster</span>` : ''}
+        <span class="tc-tag feat">PORT ${t.port}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+
+  const found = await discoverTenants();
+  const tenantKeys = Object.entries(found);
+
+  // Also add known tenants that weren't found (show as offline)
+  const allKeys = new Set([...Object.keys(found), ...Object.keys(KNOWN_TENANTS)]);
+  const promises = [];
+
+  for (const key of allKeys) {
+    const port = found[key];
+    if (port) {
+      promises.push(fetchTenantData(key, port));
+    } else {
+      promises.push(Promise.resolve({
+        key, port: 0,
+        display: KNOWN_TENANTS[key]?.display || key,
+        vertical: KNOWN_TENANTS[key]?.vertical || '',
+        profiles:0, records:0, dedup:0, sources:0, avgCluster:0,
+        online: false, regions: 0,
+      }));
+    }
+  }
+
+  const tenants = await Promise.all(promises);
+
+  // Dedupe by key (keep first found)
+  const seen = new Set();
+  const unique = tenants.filter(t => {
+    if (seen.has(t.key)) return false;
+    seen.add(t.key);
+    return true;
+  });
+
+  renderPortfolio(unique);
+  renderTenants(unique);
+
+  document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+  btn.disabled = false;
+  btn.textContent = 'Refresh';
+}
+
+loadAll();
+// Auto-refresh every 5 minutes
+setInterval(loadAll, 300000);
+</script>
+</body>
+</html>

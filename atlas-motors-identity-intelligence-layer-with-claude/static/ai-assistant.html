@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Assistant — Atlas Motors Identity Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --amp-dusk:#1A1A1A;--amp-dark:#111111;--amp-teal:#54D3DE;--amp-ocean:#00A0B2;
+  --amp-yellow:#EAFF5F;--amp-cloud:#FFFFFF;--amp-white:#FFFFFF;--amp-red:#EF4444;
+  --amp-orange:#F59E0B;--amp-green:#10B981;--amp-anvil:#6B7280;--amp-border:#E5E7EB;
+  --amp-cement:#9CA3AF;--amp-ice:#F0FAFB;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#F8F9FA;color:#1a1a1a;min-height:100vh}
+.header{background:var(--amp-dusk);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px}
+.header-right{display:flex;align-items:center;gap:16px}
+.nav-link{color:rgba(255,255,255,0.5);text-decoration:none;font-size:12px;font-weight:600;padding:7px 16px;border-radius:4px;transition:all 0.2s;letter-spacing:0.3px;text-transform:uppercase}
+.nav-link:hover{color:var(--amp-white)}
+.nav-link.active{color:var(--amp-dusk);background:var(--amp-teal)}
+.region-switcher{display:flex;gap:4px;background:rgba(255,255,255,0.06);border-radius:8px;padding:3px}
+.region-btn{padding:5px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;background:transparent;color:rgba(255,255,255,0.5);font-family:inherit}
+.region-btn.active{background:var(--amp-ocean);color:var(--amp-white)}
+.region-btn:hover:not(.active){color:var(--amp-white);background:rgba(255,255,255,0.08)}
+.region-btn .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px}
+.dot-ok{background:var(--amp-green)}.dot-fail{background:var(--amp-red)}
+
+.main{max-width:1000px;margin:0 auto;padding:24px}
+
+/* Mode Selector */
+.mode-selector{display:flex;gap:4px;background:var(--amp-white);border-radius:10px;padding:4px;margin-bottom:20px;border:1px solid var(--amp-border)}
+.mode-btn{flex:1;padding:12px 16px;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--amp-anvil);font-family:inherit;transition:all 0.15s;text-align:center}
+.mode-btn.active{background:var(--amp-ocean);color:var(--amp-white);font-weight:600}
+.mode-btn:hover:not(.active){background:var(--amp-cloud)}
+.mode-btn small{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:0.7}
+.mode-btn.unavailable{opacity:0.4;cursor:not-allowed}
+.mode-btn .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.status-dot.on{background:var(--amp-green)}
+.status-dot.off{background:var(--amp-red)}
+
+/* Cortex sub-selector */
+.agent-selector{display:none;gap:4px;background:var(--amp-ice);border-radius:8px;padding:3px;margin-bottom:16px}
+.agent-selector.visible{display:flex}
+.agent-btn{flex:1;padding:8px 12px;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--amp-anvil);font-family:inherit;transition:all 0.15s;text-align:center}
+.agent-btn.active{background:var(--amp-ocean);color:var(--amp-white);font-weight:600}
+.agent-btn:hover:not(.active){background:var(--amp-white)}
+.agent-btn small{display:block;font-size:10px;font-weight:400;margin-top:1px;opacity:0.7}
+
+/* Example Chips */
+.examples{margin-bottom:20px}
+.examples-label{font-size:12px;font-weight:600;color:var(--amp-anvil);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.3px}
+.example-chips{display:flex;flex-wrap:wrap;gap:6px}
+.example-chip{background:var(--amp-white);color:var(--amp-ocean);padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--amp-border);transition:all 0.15s;font-family:inherit}
+.example-chip:hover{border-color:var(--amp-teal);background:var(--amp-ice)}
+
+/* Chat */
+.chat-container{background:var(--amp-white);border-radius:10px;border:1px solid var(--amp-border);padding:20px;margin-bottom:16px;min-height:300px;max-height:600px;overflow-y:auto}
+.chat-empty{text-align:center;padding:80px 20px;color:var(--amp-cement);font-size:14px}
+
+.message{margin-bottom:16px;padding:14px 18px;border-radius:8px}
+.message.user{background:var(--amp-dusk);color:var(--amp-white);margin-left:60px}
+.message.assistant{background:var(--amp-ice);margin-right:60px;border:1px solid var(--amp-border)}
+.message.error{background:#FEF2F2;border-left:3px solid var(--amp-red);color:#991B1B}
+
+.message-header{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:6px;opacity:0.6}
+.message.user .message-header{color:var(--amp-teal)}
+.message.assistant .message-header{color:var(--amp-ocean)}
+
+.message-content{line-height:1.7;font-size:14px}
+
+.message.assistant .message-content h1{font-size:18px;font-weight:700;color:var(--amp-dusk);margin:14px 0 6px;font-family:'Montserrat',system-ui,sans-serif}
+.message.assistant .message-content h2{font-size:15px;font-weight:700;color:var(--amp-dusk);margin:12px 0 6px;border-bottom:2px solid var(--amp-cloud);padding-bottom:4px;font-family:'Montserrat',system-ui,sans-serif}
+.message.assistant .message-content h3{font-size:13px;font-weight:600;color:var(--amp-ocean);margin:10px 0 4px}
+.message.assistant .message-content p{margin:6px 0}
+.message.assistant .message-content strong{color:var(--amp-dusk);font-weight:700}
+.message.assistant .message-content ul,.message.assistant .message-content ol{margin:6px 0;padding-left:22px}
+.message.assistant .message-content li{margin:3px 0}
+.message.assistant .message-content code{background:var(--amp-cloud);padding:1px 5px;border-radius:3px;font-size:12px;color:var(--amp-ocean)}
+.message.assistant .message-content pre{background:var(--amp-dusk);color:var(--amp-teal);padding:12px;border-radius:8px;overflow-x:auto;margin:8px 0;font-size:12px}
+.message.assistant .message-content pre code{background:none;color:inherit;padding:0}
+.message.assistant .message-content table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+.message.assistant .message-content th{background:var(--amp-dusk);color:var(--amp-white);text-align:left;padding:7px 10px;font-weight:600}
+.message.assistant .message-content td{padding:6px 10px;border-bottom:1px solid var(--amp-border)}
+.message.assistant .message-content tr:hover td{background:rgba(0,160,178,0.04)}
+.message.assistant .message-content hr{border:none;border-top:1px solid var(--amp-border);margin:12px 0}
+.message.assistant .message-content blockquote{border-left:3px solid var(--amp-ocean);padding-left:12px;margin:8px 0;color:var(--amp-anvil)}
+
+.provider-badge{display:inline-block;margin-top:8px;padding:3px 8px;background:rgba(0,160,178,0.1);border:1px solid var(--amp-ocean);border-radius:10px;font-size:10px;color:var(--amp-ocean);text-transform:uppercase;font-weight:600}
+
+/* Input */
+.input-area{background:var(--amp-white);border-radius:10px;border:1px solid var(--amp-border);padding:16px}
+.input-row{display:flex;gap:10px;align-items:flex-end}
+.input-row textarea{flex:1;padding:12px 14px;border:2px solid var(--amp-border);border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;min-height:50px;color:var(--amp-dusk);outline:none;transition:border-color 0.15s}
+.input-row textarea:focus{border-color:var(--amp-teal)}
+.input-row textarea::placeholder{color:var(--amp-cement)}
+.btn-group{display:flex;flex-direction:column;gap:6px}
+.ask-btn{padding:12px 28px;background:var(--amp-teal);color:var(--amp-dusk);border:2px solid var(--amp-teal);border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap}
+.ask-btn:hover{background:var(--amp-ocean);border-color:var(--amp-ocean);color:var(--amp-white)}
+.ask-btn:disabled{background:var(--amp-border);border-color:var(--amp-border);color:var(--amp-cement);cursor:not-allowed}
+.clear-btn{padding:6px 12px;background:transparent;color:var(--amp-cement);border:1px solid var(--amp-border);border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.clear-btn:hover{border-color:var(--amp-red);color:var(--amp-red)}
+
+.loading{display:none;text-align:center;padding:16px;color:var(--amp-anvil);font-size:13px}
+.loading.active{display:block}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--amp-border);border-radius:50%;border-top-color:var(--amp-teal);animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <img src="https://amperity-static-assets.s3-us-west-2.amazonaws.com/resources/img/amp_logo_white.svg" alt="Amperity" style="height:24px;">
+    <span style="color:rgba(255,255,255,0.4);font-size:13px;margin-left:4px;">AI Assistant — Atlas Motors</span>
+  </div>
+  <div class="header-right">
+    <div class="region-switcher" id="regionSwitcher"></div>
+    <a href="/" class="nav-link">Search</a>
+    <a href="/tools" class="nav-link">Data Quality</a>
+    <a href="/cotm" class="nav-link">Value View</a>
+    <a href="/demo" class="nav-link">Demo</a>
+    <a href="/presentation" class="nav-link">Presentation</a>
+    <a href="/deck" class="nav-link">Deck</a>
+    <a href="/ai" class="nav-link active">AI</a>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="mode-selector">
+    <button class="mode-btn active" data-mode="claude" id="modeClaude">
+      <span class="status-dot off" id="claudeDot"></span>Claude
+      <small>Anthropic — identity analyst</small>
+    </button>
+    <button class="mode-btn" data-mode="gemini" id="modeGemini">
+      <span class="status-dot off" id="geminiDot"></span>Gemini
+      <small>Google — identity analyst</small>
+    </button>
+    <button class="mode-btn" data-mode="cortex" id="modeCortex">
+      <span class="status-dot off" id="cortexDot"></span>Cortex Agent
+      <small>Nemo — consumption, billing</small>
+    </button>
+  </div>
+
+  <div class="agent-selector" id="agentSelector">
+    <button class="agent-btn active" data-agent="nemo">Nemo<small>Data Analytics</small></button>
+    <button class="agent-btn" data-agent="nemosupport">NemoSupport<small>Support Ops</small></button>
+    <button class="agent-btn" data-agent="nemoclientrelations">ClientRelations<small>Sales &amp; CS</small></button>
+  </div>
+
+  <div class="examples" id="examplesContainer">
+    <div class="examples-label">Example Questions</div>
+    <div class="example-chips" id="exampleChips"></div>
+  </div>
+
+  <div class="chat-container" id="chatContainer">
+    <div class="chat-empty" id="chatEmpty">Ask a question to get started.</div>
+  </div>
+
+  <div class="loading" id="loading"><span class="spinner"></span><span id="loadingText">Thinking...</span></div>
+
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="questionInput" placeholder="Ask about identity data, cluster quality, drift patterns..." rows="2"></textarea>
+      <div class="btn-group">
+        <button class="ask-btn" id="askButton">Ask</button>
+        <button class="clear-btn" id="clearButton">Clear</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const chatContainer = document.getElementById('chatContainer');
+const questionInput = document.getElementById('questionInput');
+const askButton = document.getElementById('askButton');
+const clearButton = document.getElementById('clearButton');
+const loading = document.getElementById('loading');
+const loadingText = document.getElementById('loadingText');
+const agentSelector = document.getElementById('agentSelector');
+const exampleChips = document.getElementById('exampleChips');
+const chatEmpty = document.getElementById('chatEmpty');
+
+let currentMode = 'claude';
+let selectedAgent = 'nemo';
+let availableProviders = [];
+let cortexAvailable = false;
+
+const AI_EXAMPLES = [
+  { label: 'Health Check', q: 'Give me a complete health check on this tenant — dedup rate, cluster quality, any issues.' },
+  { label: 'Data Quality', q: 'What are the biggest data quality issues right now? Check source completeness and cluster health.' },
+  { label: 'Drift Analysis', q: 'Are there any active drift alerts? What changed and should I be concerned?' },
+  { label: 'Stitch Performance', q: 'How is Stitch performing? Show me the key metrics and any areas to investigate.' },
+  { label: 'Source Analysis', q: 'Which data sources have the highest dedup rates? Which ones are contributing the most duplicates?' },
+  { label: 'Segment Ideas', q: 'Based on the identity data, what high-value customer segments could I build?' },
+];
+
+const EXAMPLES = {
+  claude: AI_EXAMPLES,
+  gemini: AI_EXAMPLES,
+  cortex: [
+    { label: 'Full Readout', q: 'Give me a full readout on the Macy\'s tenant' },
+    { label: 'Consumption', q: 'What is the current Amps consumption for this tenant?' },
+    { label: 'Support Tickets', q: 'Show me recent support tickets for this tenant' },
+    { label: 'Features', q: 'What features are enabled for this account?' },
+    { label: 'Bridge Config', q: 'Get Bridge configuration details' },
+    { label: 'Workflow Health', q: 'What\'s the health of recent workflow runs?' },
+  ]
+};
+
+// Check availability on load
+async function checkStatus() {
+  try {
+    const r = await fetch('/api/assistant-status');
+    const data = await r.json();
+    availableProviders = data.providers || [];
+    document.getElementById('claudeDot').className = `status-dot ${availableProviders.includes('claude') ? 'on' : 'off'}`;
+    document.getElementById('geminiDot').className = `status-dot ${availableProviders.includes('gemini') ? 'on' : 'off'}`;
+    if (!availableProviders.includes('claude')) document.getElementById('modeClaude').classList.add('unavailable');
+    if (!availableProviders.includes('gemini')) document.getElementById('modeGemini').classList.add('unavailable');
+  } catch(e) {}
+
+  try {
+    const r = await fetch('/api/list-agents');
+    const data = await r.json();
+    cortexAvailable = !data.error;
+    document.getElementById('cortexDot').className = `status-dot ${cortexAvailable ? 'on' : 'off'}`;
+  } catch(e) {}
+
+  // Auto-select first available mode
+  if (!availableProviders.includes('claude') && availableProviders.includes('gemini')) switchMode('gemini');
+  else if (!availableProviders.length && cortexAvailable) switchMode('cortex');
+  updateExamples();
+}
+checkStatus();
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+  agentSelector.classList.toggle('visible', mode === 'cortex');
+  updateExamples();
+
+  const placeholders = {
+    claude: 'Ask Claude about identity data, cluster quality, drift patterns...',
+    gemini: 'Ask Gemini about identity data, cluster quality, drift patterns...',
+    cortex: 'Ask about tenant data, consumption, support metrics, workflows...'
+  };
+  questionInput.placeholder = placeholders[mode];
+}
+
+function updateExamples() {
+  const examples = EXAMPLES[currentMode] || [];
+  exampleChips.innerHTML = examples.map(e =>
+    `<div class="example-chip" data-q="${e.q.replace(/"/g, '&quot;')}">${e.label}</div>`
+  ).join('');
+  exampleChips.querySelectorAll('.example-chip').forEach(chip => {
+    chip.addEventListener('click', () => { questionInput.value = chip.dataset.q; questionInput.focus(); });
+  });
+}
+
+// Mode selector
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+});
+
+// Agent selector (Cortex sub-agents)
+document.querySelectorAll('.agent-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.agent-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedAgent = btn.dataset.agent;
+  });
+});
+
+// Region switcher
+async function loadRegions() {
+  try {
+    const res = await fetch('/api/regions');
+    const data = await res.json();
+    const sw = document.getElementById('regionSwitcher');
+    sw.innerHTML = data.regions.map(r =>
+      `<button class="region-btn ${r.active ? 'active' : ''}" data-id="${r.id}"><span class="dot ${r.has_token ? 'dot-ok' : 'dot-fail'}"></span>${r.name}</button>`
+    ).join('');
+    sw.querySelectorAll('.region-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await fetch(`/api/regions/${btn.dataset.id}/activate`, { method: 'POST' });
+        loadRegions();
+      });
+    });
+  } catch(e) {}
+}
+loadRegions();
+
+function addMessage(role, content, provider = null) {
+  const empty = chatContainer.querySelector('.chat-empty');
+  if (empty) empty.remove();
+
+  const message = document.createElement('div');
+  message.className = `message ${role}`;
+
+  const header = document.createElement('div');
+  header.className = 'message-header';
+  header.textContent = role === 'user' ? 'You' : role === 'error' ? 'Error' : (provider || 'Assistant');
+  message.appendChild(header);
+
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'message-content';
+  if (role === 'assistant') {
+    contentDiv.innerHTML = marked.parse(content);
+  } else {
+    contentDiv.textContent = content;
+  }
+  message.appendChild(contentDiv);
+
+  if (provider && role === 'assistant') {
+    const badge = document.createElement('div');
+    badge.className = 'provider-badge';
+    badge.textContent = provider;
+    message.appendChild(badge);
+  }
+
+  chatContainer.appendChild(message);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+async function askQuestion() {
+  const question = questionInput.value.trim();
+  if (!question) return;
+
+  askButton.disabled = true;
+  questionInput.disabled = true;
+  loading.classList.add('active');
+  const loadingMessages = { claude: 'Claude is analyzing...', gemini: 'Gemini is analyzing...', cortex: 'Querying Cortex Agent...' };
+  loadingText.textContent = loadingMessages[currentMode] || 'Thinking...';
+
+  addMessage('user', question);
+  questionInput.value = '';
+
+  try {
+    let url, body;
+    if (currentMode === 'claude' || currentMode === 'gemini') {
+      url = '/api/ask-assistant';
+      body = { question, provider: currentMode };
+    } else {
+      url = '/api/ask-ai';
+      body = { question, agent: selectedAgent, include_context: true };
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      addMessage('error', data.error);
+    } else {
+      const provider = data.provider || data.agent || currentMode;
+      addMessage('assistant', data.response, provider);
+    }
+  } catch (error) {
+    addMessage('error', `Request failed: ${error.message}`);
+  } finally {
+    askButton.disabled = false;
+    questionInput.disabled = false;
+    loading.classList.remove('active');
+    questionInput.focus();
+  }
+}
+
+clearButton.addEventListener('click', async () => {
+  chatContainer.innerHTML = '<div class="chat-empty">Ask a question to get started.</div>';
+  if (currentMode === 'claude' || currentMode === 'gemini') {
+    await fetch('/api/assistant-clear', { method: 'POST' });
+  }
+});
+
+askButton.addEventListener('click', askQuestion);
+questionInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askQuestion(); }
+});
+
+questionInput.focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acme — Customer Identity Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<style>
+/* ── Amperity COTM Brand System ─────────────────────────────────────────── */
+:root {
+  --dusk: #1A1A1A;
+  --teal: #54D3DE;
+  --ocean: #00A0B2;
+  --offblack: #0C0C0C;
+  --anvil: #6B7280;
+  --cloud: #FFFFFF;
+  --cement: #E5E7EB;
+  --ice: #F0FAFB;
+  --amp-yellow: #EAFF5F;
+  --sat-red: #FF504A;
+  --white: #FFFFFF;
+  --brand-dusk: #004B57;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Montserrat',sans-serif; background:var(--cloud); color:#374151; }
+
+/* ── Top Bar ──────────────────────────────────────────────────────────── */
+.top-bar {
+  background:var(--dusk); color:var(--white); padding:0 32px;
+  display:flex; align-items:center; justify-content:space-between; height:60px;
+  position:sticky; top:0; z-index:100;
+}
+.top-bar .brand { display:flex; align-items:center; gap:12px; }
+.top-bar .brand-logo { height:24px; margin-right:4px; }
+.top-bar .brand-title { font-size:11px; font-weight:500; color:rgba(255,255,255,0.35); letter-spacing:0.5px; }
+.top-bar .nav-links { display:flex; gap:8px; align-items:center; }
+.top-bar .nav-link { color:rgba(255,255,255,0.5); text-decoration:none; font-size:12px; font-weight:600;
+  padding:7px 16px; border-radius:4px; transition:all 0.2s; letter-spacing:0.3px; text-transform:uppercase; }
+.top-bar .nav-link:hover { color:var(--white); }
+.top-bar .nav-link.active { color:var(--dusk); background:var(--teal); }
+
+/* ── Main Layout ──────────────────────────────────────────────────────── */
+.main { max-width:1100px; margin:0 auto; padding:28px 32px 64px; }
+
+/* ── Hero Section ─────────────────────────────────────────────────────── */
+.hero {
+  background:#1A1A1A; border-radius:16px; padding:40px 48px; margin-bottom:32px;
+  position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; left:0; top:0; width:4px; height:100%;
+  background:var(--teal);
+}
+.hero .label { font-size:12px; font-weight:700; color:var(--teal); letter-spacing:3px;
+  text-transform:uppercase; margin-bottom:8px; }
+.hero h1 { font-size:32px; font-weight:800; color:var(--white); margin-bottom:8px; line-height:1.2; }
+.hero .subtitle { font-size:15px; color:var(--ice); line-height:1.6; max-width:700px; }
+.hero-stats {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:16px; margin-top:28px;
+}
+.hero-stat {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(84,211,222,0.15);
+  border-radius:10px; padding:16px 20px;
+}
+.hero-stat .val { font-size:28px; font-weight:800; color:var(--white); }
+.hero-stat .lbl { font-size:11px; font-weight:600; color:var(--teal); letter-spacing:1px;
+  text-transform:uppercase; margin-top:4px; }
+.hero-stat .ctx { font-size:11px; color:var(--ice); margin-top:4px; opacity:0.8; }
+.hero { position:relative; }
+.hero-toggle {
+  position:absolute; top:12px; right:16px; background:rgba(255,255,255,0.1);
+  border:1px solid rgba(84,211,222,0.2); border-radius:6px; color:var(--ice);
+  font-size:12px; width:28px; height:28px; cursor:pointer; transition:all 0.2s;
+  display:flex; align-items:center; justify-content:center; font-family:monospace;
+}
+.hero-toggle:hover { background:rgba(255,255,255,0.2); color:var(--white); }
+.hero.collapsed { padding:16px 48px; }
+
+/* ── Value Driver Sections ────────────────────────────────────────────── */
+.vd-section { margin-bottom:36px; }
+.vd-header {
+  display:flex; align-items:center; gap:16px; margin-bottom:20px;
+  padding-bottom:12px; border-bottom:2px solid var(--teal);
+}
+.vd-number {
+  width:36px; height:36px; border-radius:50%; background:#1A1A1A;
+  color:var(--teal); font-size:16px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.vd-title { font-size:18px; font-weight:800; color:#1A1A1A; letter-spacing:-0.3px; }
+.vd-subtitle { font-size:12px; color:var(--ocean); font-weight:500; margin-top:2px; }
+
+/* ── Cards ────────────────────────────────────────────────────────────── */
+.card-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(380px, 1fr)); gap:20px; margin-bottom:20px; }
+.card {
+  background:var(--white); border-radius:12px; overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04); border:1px solid var(--cement);
+}
+.card-head {
+  padding:14px 20px; font-size:13px; font-weight:700; color:var(--white);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.card-head.dusk { background:#1A1A1A; }
+.card-head.ocean { background:var(--ocean); }
+.card-head.teal { background:var(--teal); color:#1A1A1A; }
+.card-head.red { background:var(--sat-red); }
+.card-body { padding:20px; }
+
+.diff-tag { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  padding:3px 10px; border-radius:10px; }
+.diff-unique { background:var(--amp-yellow); color:#1A1A1A; }
+.diff-comparative { background:var(--ice); color:#1A1A1A; }
+.diff-holistic { background:rgba(255,255,255,0.2); color:var(--white); }
+
+/* ── Before / After Cards ─────────────────────────────────────────────── */
+.ba-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; margin:12px 0; border-radius:10px; overflow:hidden;
+  border:1px solid var(--cement); }
+.ba-before { background:#FFF5F5; padding:16px 20px; border-right:1px solid var(--cement); }
+.ba-after { background:#F0FDF9; padding:16px 20px; }
+.ba-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.ba-before .ba-label { color:var(--sat-red); }
+.ba-after .ba-label { color:#16a34a; }
+.ba-val { font-size:24px; font-weight:800; }
+.ba-before .ba-val { color:var(--sat-red); }
+.ba-after .ba-val { color:#16a34a; }
+.ba-desc { font-size:11px; color:var(--anvil); margin-top:4px; line-height:1.4; }
+
+/* ── Insight Callout ──────────────────────────────────────────────────── */
+.insight {
+  background:var(--ice); border-left:3px solid var(--ocean); border-radius:0 8px 8px 0;
+  padding:14px 20px; font-size:13px; color:#374151; margin:16px 0; line-height:1.6;
+}
+.insight strong { color:var(--ocean); }
+
+/* ── Tables ───────────────────────────────────────────────────────────── */
+.table-scroll { overflow-x:auto; }
+.data-table { width:100%; border-collapse:collapse; font-size:12px; }
+.data-table th { background:#1A1A1A; color:var(--white); padding:10px 12px; text-align:left;
+  font-weight:600; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; }
+.data-table td { padding:9px 12px; border-bottom:1px solid var(--cement); color:#374151; }
+.data-table tr:nth-child(even) { background:#F9FAFB; }
+.data-table tr:hover { background:var(--ice); cursor:pointer; }
+
+/* ── Charts ───────────────────────────────────────────────────────────── */
+.chart-wrap { position:relative; height:260px; margin:12px 0; }
+
+/* ── Full-width card ──────────────────────────────────────────────────── */
+.card-full { grid-column:1 / -1; }
+
+/* ── Loading / Error ──────────────────────────────────────────────────── */
+.loading { text-align:center; padding:32px; color:var(--ocean); font-size:13px; font-weight:500; }
+.error { text-align:center; padding:20px; background:#FFF5F5; color:var(--sat-red);
+  border-radius:8px; font-size:13px; margin:12px 0; }
+
+/* ── Expandable sections ──────────────────────────────────────────────── */
+.expand-btn { background:none; border:1px solid var(--cement); border-radius:6px;
+  padding:8px 16px; font-family:'Montserrat',sans-serif; font-size:12px; font-weight:600;
+  color:var(--ocean); cursor:pointer; transition:all 0.2s; margin-top:12px; }
+.expand-btn:hover { background:var(--ocean); color:var(--white); border-color:var(--ocean); }
+.expandable { display:none; margin-top:16px; }
+.expandable.open { display:block; }
+
+/* ── Bookended Outcomes ─────────────────────────────────────────────── */
+.outcomes-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:0; margin:16px 0 20px;
+  border-radius:10px; overflow:hidden; border:1px solid var(--cement);
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.outcome-left {
+  background:#FFF5F5; padding:20px 24px; border-right:1px solid var(--cement);
+}
+.outcome-right {
+  background:#F0FCFD; padding:20px 24px;
+}
+.outcome-label {
+  font-size:9px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase;
+  margin-bottom:8px; display:flex; align-items:center; gap:6px;
+}
+.outcome-left .outcome-label { color:var(--sat-red); }
+.outcome-right .outcome-label { color:var(--ocean); }
+.outcome-lead {
+  font-size:14px; font-weight:700; margin-bottom:8px; line-height:1.35;
+}
+.outcome-left .outcome-lead { color:var(--sat-red); }
+.outcome-right .outcome-lead { color:var(--dusk); }
+.outcome-body {
+  font-size:12px; color:var(--anvil); line-height:1.6;
+}
+.outcome-body strong { color:var(--offblack); }
+
+/* ── Cost of Inaction ────────────────────────────────────────────────── */
+.table-stakes-box {
+  background:linear-gradient(135deg, #FFF5F5 0%, #FEF2F2 100%);
+  border:1px solid #fecaca; border-radius:12px;
+  padding:24px 28px; margin:24px 0;
+  box-shadow:0 2px 8px rgba(255,80,74,0.08);
+}
+.table-stakes-box .ts-title {
+  font-size:16px; font-weight:800; color:var(--sat-red);
+  margin-bottom:12px; display:flex; align-items:center; gap:8px;
+}
+.table-stakes-box .ts-items {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+}
+.table-stakes-box .ts-item {
+  font-size:12px; line-height:1.5; color:var(--anvil); padding:8px 12px;
+  background:rgba(255,255,255,0.7); border-radius:6px;
+}
+.table-stakes-box .ts-item strong { color:var(--sat-red); }
+
+/* ── Smart Segment Cards ──────────────────────────────────────────────── */
+.seg-cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin:16px 0; }
+.seg-card {
+  background:var(--white); border:1px solid var(--cement); border-radius:10px;
+  padding:16px; cursor:pointer; transition:all 0.2s;
+}
+.seg-card:hover { border-color:var(--ocean); box-shadow:0 2px 8px rgba(0,160,178,0.12); }
+.seg-card.active { border-color:var(--ocean); background:var(--ice); }
+.seg-card .seg-name { font-size:13px; font-weight:700; color:var(--dusk); margin-bottom:4px; }
+.seg-card .seg-why { font-size:11px; color:var(--anvil); line-height:1.4; }
+.seg-card .seg-count { font-size:20px; font-weight:800; color:var(--ocean); margin-top:8px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══════════════════════════════════════════════════════════ -->
+<div class="top-bar">
+  <div class="brand">
+    <img src="https://amperity-static-assets.s3-us-west-2.amazonaws.com/resources/img/amp_logo_white.svg" alt="Amperity" class="brand-logo">
+    <span class="brand-title">Value Intelligence — Acme</span>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Search</a>
+    <a href="/tools" class="nav-link">Data Quality</a>
+    <a href="/cotm" class="nav-link active">Value View</a>
+    <a href="/demo" class="nav-link">Demo</a>
+    <a href="/presentation" class="nav-link">Presentation</a>
+    <a href="/deck" class="nav-link">Deck</a>
+    <a href="/ai" class="nav-link">AI</a>
+  </div>
+</div>
+
+<!-- ═══ MAIN CONTENT ══════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- ─── HERO: Executive Pulse ─────────────────────────────────────────── -->
+  <div class="hero" id="heroSection">
+    <button class="hero-toggle" id="heroToggle" onclick="toggleHero()">&#9650;</button>
+    <div id="heroContent">
+      <div class="label">Your Customer Identity Foundation</div>
+      <h1 id="heroTitle">Unified Shopper Intelligence at a Glance</h1>
+      <div class="subtitle" id="heroSubtitle">A unified view of Acme customer identity across every data source. Each number represents real shoppers — previously invisible, fragmented, or duplicated — now resolved into a single, actionable profile.</div>
+      <div class="hero-stats" id="heroStats">
+        <div class="hero-stat"><div class="val">...</div><div class="lbl">Loading</div></div>
+      </div>
+    </div>
+    <div id="heroCollapsed" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h1 style="font-size:16px;font-weight:700;color:var(--white);margin:0" id="heroTitleMini">Acme Shopper Identity</h1>
+        <span style="font-size:12px;color:var(--ice);opacity:0.7" id="heroStatsMini"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VALUE DRIVER 1 ═════════════════════════════════════════════════ -->
+  <div class="vd-section">
+    <div class="vd-header">
+      <div class="vd-number">1</div>
+      <div>
+        <div class="vd-title">Trusted Customer Data Foundation</div>
+        <div class="vd-subtitle">From fragmented records across siloed systems to a unified view of every Acme shopper</div>
+      </div>
+    </div>
+
+    <!-- Bookended Outcomes -->
+    <div class="outcomes-grid">
+      <div class="outcome-left">
+        <div class="outcome-label">&#9888; Negative Consequences</div>
+        <div class="outcome-lead">Shopper identity stays fragmented. Every metric built on fragment counts, not real people.</div>
+        <div class="outcome-body">Shoppers are fragmented across Acme.com, Bloomingdale's, Star Rewards loyalty, in-store POS, email, and mobile app. <strong>Every audience size, engagement metric, and customer count is inflated by duplicates.</strong> Marketing sends duplicate offers to the same shopper across channels. Loyalty members aren't recognized when they switch between online and in-store. High-value customers who shop across brands and channels look like multiple low-value contacts. Without unified identity, every downstream decision is built on a foundation of noise.
+        <br><br><strong>What this costs:</strong> If even 5% of media impressions hit duplicate profiles, a $100M annual media budget wastes $5M on redundant targeting. Customer counts reported to the board are inflated. LTV models overcount low-value fragments and undervalue cross-channel shoppers. Every audience built on this data inherits the error.</div>
+      </div>
+      <div class="outcome-right">
+        <div class="outcome-label">&#10003; Positive Business Outcomes</div>
+        <div class="outcome-lead">Unified profiles become the single source of truth.</div>
+        <div class="outcome-body">Every shopper touchpoint connected. <strong>Acme.com, Bloomingdale's, Star Rewards, in-store POS, email, mobile app — all resolved into one customer.</strong> A shopper who buys online, returns in-store, and redeems Star Rewards points is recognized as one high-value customer — not three disconnected fragments. Online purchases linked to in-store visits. Star Rewards members recognized everywhere. Audience counts are accurate. Engagement metrics reflect real behavior.
+        <br><br><strong>What this enables:</strong> Accurate customer counts for board reporting. True cross-channel LTV calculation — a $200 online buyer who also spends $500 in-store is valued at $700, not counted as two separate $200/$500 contacts. Suppression lists that actually work. Media efficiency gains compound with every campaign cycle.</div>
+      </div>
+    </div>
+
+    <!-- Before/After: Dedup Impact -->
+    <div class="card-grid">
+      <div class="card" id="dedupCard">
+        <div class="card-head dusk">
+          Dedup Resolution Impact
+          <span class="diff-tag diff-unique">Unique Capability</span>
+        </div>
+        <div class="card-body" id="dedupBody">
+          <div class="loading">Loading dedup analysis...</div>
+        </div>
+      </div>
+
+      <div class="card" id="sourceCard">
+        <div class="card-head ocean">
+          Data Completeness Across Systems
+          <span class="diff-tag diff-comparative">Comparative</span>
+        </div>
+        <div class="card-body" id="sourceBody">
+          <div class="loading">Loading source analysis...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name Variants -->
+    <div class="card-grid">
+      <div class="card card-full" id="variantCard">
+        <div class="card-head dusk">
+          Customers Only Probabilistic Matching Finds
+          <span class="diff-tag diff-unique">Unique Capability</span>
+        </div>
+        <div class="card-body" id="variantBody">
+          <div class="loading">Loading name variant analysis...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crosswalk — the golden record -->
+    <div class="card-grid">
+      <div class="card card-full" id="crosswalkCard">
+        <div class="card-head teal">
+          The Golden Record — One Shopper Across Every System
+        </div>
+        <div class="card-body" id="crosswalkBody">
+          <div class="loading">Loading crosswalk...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cluster Quality (expandable) -->
+    <button class="expand-btn" onclick="toggleExpand('clusterSection')">Show Identity Quality Details</button>
+    <div class="expandable" id="clusterSection">
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-head ocean">Cluster Size Distribution</div>
+          <div class="card-body"><div class="chart-wrap"><canvas id="clusterDistChart"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head ocean">Quality Signals</div>
+          <div class="card-body" id="qualitySignals"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VALUE DRIVER 2 ═════════════════════════════════════════════════ -->
+  <div class="vd-section">
+    <div class="vd-header">
+      <div class="vd-number">2</div>
+      <div>
+        <div class="vd-title">Faster Operations, Less Complexity</div>
+        <div class="vd-subtitle">Automated identity resolution and quality monitoring replacing manual data reconciliation</div>
+      </div>
+    </div>
+
+    <!-- Bookended Outcomes -->
+    <div class="outcomes-grid">
+      <div class="outcome-left">
+        <div class="outcome-label">&#9888; Negative Consequences</div>
+        <div class="outcome-lead">Manual dedup processes with no visibility into match quality.</div>
+        <div class="outcome-body">Manual deduplication processes run periodically with no real-time visibility into match quality. <strong>Customer service teams see fragmented profiles and can't recognize returning shoppers.</strong> No automated alerting when data quality drifts. When a new data source is added, the entire reconciliation process starts from scratch. As Acme adds new digital touchpoints, processing time and complexity grow without bound.
+        <br><br><strong>The hidden cost:</strong> Data engineering teams spend weeks on manual matching projects that Amperity handles automatically. When match rules break, nobody knows until a campaign goes out wrong. There's no audit trail for why records merged or didn't — compliance questions go unanswered. Every new source integration is a project, not a configuration.</div>
+      </div>
+      <div class="outcome-right">
+        <div class="outcome-label">&#10003; Positive Business Outcomes</div>
+        <div class="outcome-lead">Always-on identity resolution with automated drift monitoring.</div>
+        <div class="outcome-body">Identity resolution runs automatically at enterprise scale. <strong>Automated drift monitoring catches quality shifts in real-time before they compound.</strong> New data sources are integrated without manual reconciliation. Customer service sees unified profiles immediately. Operational excellence becomes the default — not the exception. The identity layer gets faster and more accurate as data grows.
+        <br><br><strong>Operational leverage:</strong> Household bloat detection surfaces family members incorrectly merged — a quality signal invisible to rule-based systems. Stitch explainability provides auditable merge reasoning for every cluster. Drift monitoring alerts fire before bad data reaches downstream systems. Source onboarding drops from weeks to days.</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card" id="fleetCard">
+        <div class="card-head dusk">
+          Household Bloat Detection
+          <span class="diff-tag diff-holistic">Holistic</span>
+        </div>
+        <div class="card-body" id="fleetBody">
+          <div class="loading">Loading household analysis...</div>
+        </div>
+      </div>
+
+      <div class="card" id="stitchCard">
+        <div class="card-head ocean">
+          Identity Resolution Performance
+          <span class="diff-tag diff-comparative">Enterprise Scale</span>
+        </div>
+        <div class="card-body" id="stitchBody">
+          <div class="loading">Loading stitch metrics...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drift monitoring -->
+    <div class="card-grid">
+      <div class="card card-full" id="driftCard">
+        <div class="card-head dusk">
+          Always-On Quality Monitoring
+          <span class="diff-tag diff-comparative">Zero Manual QA</span>
+        </div>
+        <div class="card-body" id="driftBody">
+          <div class="loading">Loading drift monitor...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VALUE DRIVER 3 ═════════════════════════════════════════════════ -->
+  <div class="vd-section">
+    <div class="vd-header">
+      <div class="vd-number">3</div>
+      <div>
+        <div class="vd-title">Acquire, Grow & Retain Your Best Shoppers</div>
+        <div class="vd-subtitle">Audiences you can act on today — built from Acme unified customer identity</div>
+      </div>
+    </div>
+
+    <!-- Bookended Outcomes -->
+    <div class="outcomes-grid">
+      <div class="outcome-left">
+        <div class="outcome-label">&#9888; Negative Consequences</div>
+        <div class="outcome-lead">Your best customers are invisible — fragmented across systems, looking disengaged.</div>
+        <div class="outcome-body">A shopper who buys online, returns in-store, and redeems loyalty points looks like three separate low-value contacts. <strong>Retention outreach misses the people who matter most.</strong> Cross-sell opportunities between Acme.com and Bloomingdale's are invisible. Media spend targets fragments, not shoppers — duplicating impressions and wasting budget. Cross-channel attribution is broken because the data lives in different silos.
+        <br><br><strong>Revenue at risk:</strong> Single-touch shoppers (visible in only one system) represent a massive churn blind spot — they look like one-time buyers but may be active across channels you can't see. High-value cross-channel shoppers who would qualify for VIP treatment are invisible because their spend is split across fragments. Lookalike models trained on fragmented data find more fragments, not more real customers.</div>
+      </div>
+      <div class="outcome-right">
+        <div class="outcome-label">&#10003; Positive Business Outcomes</div>
+        <div class="outcome-lead">Identity that compounds with the shopper relationship.</div>
+        <div class="outcome-body">A Star Rewards member who also shops Bloomingdale's and engages via email is recognized and valued as one high-engagement customer. <strong>High-value shoppers previously invisible are surfaced and fed into proper retention.</strong> Cross-channel engagement scores reflect real behavior. Media suppression eliminates duplicate targeting. Activation audiences are built from unified profiles — accurate, deduplicated, and ready to deploy through any connected destination without data engineering.
+        <br><br><strong>Revenue opportunity:</strong> Cross-channel shoppers spend 2-3x more than single-channel buyers. Unified identity surfaces these high-value customers for VIP treatment, targeted retention, and cross-brand promotion between Acme and Bloomingdale's. Single-touch shoppers — the churn blind spot — become targetable for engagement campaigns that pull them into the cross-channel relationship. Every audience below is live, queryable, and ready to activate today.</div>
+      </div>
+    </div>
+
+    <!-- The Cost of Inaction -->
+    <div class="table-stakes-box">
+      <div class="ts-title">&#9888; The Cost of Inaction</div>
+      <div class="ts-items">
+        <div class="ts-item"><strong>Inflated customer counts across channels.</strong> Every audience size built on fragments not real shoppers. Campaign reach metrics, engagement rates, and customer counts are wrong by default — decisions made on these numbers compound the error.</div>
+        <div class="ts-item"><strong>Disconnected shopper journeys.</strong> Online not linked to in-store. A shopper who spends thousands on Acme.com is treated as unknown when they walk into a store. The relationship feels broken from the customer's perspective.</div>
+        <div class="ts-item"><strong>Wasted media spend on duplicate targeting.</strong> The same shopper gets the same ad three times because they exist as three records. Suppression lists don't work when identity is fragmented across Acme.com, Bloomingdale's, and email.</div>
+        <div class="ts-item"><strong>Invisible high-value shoppers fragmented across brands.</strong> Best customers fragmented across Acme and Bloomingdale's look disengaged. A customer active across online, in-store, and loyalty appears as multiple low-value contacts — no retention outreach, no VIP treatment.</div>
+        <div class="ts-item"><strong>Loyalty program leakage.</strong> Star Rewards members duplicated across systems. Points and tier status can't be accurately consolidated. The loyalty program that should drive retention instead creates frustration when members aren't recognized across channels.</div>
+        <div class="ts-item"><strong>Cross-channel attribution impossible without unified identity.</strong> Did the email campaign drive in-store visits? Did the in-store experience increase online purchases? Without unified identity, attribution is guesswork and every marketing investment is harder to justify.</div>
+      </div>
+    </div>
+
+    <div class="insight" id="segInsight">
+      Select an audience below to see real-time counts from Acme unified customer data. These segments are ready to activate — no data engineering, no manual list pulls required.
+    </div>
+
+    <div class="seg-cards" id="segCards"></div>
+
+    <div class="card-grid" style="margin-top:16px">
+      <div class="card card-full" id="segResultCard" style="display:none">
+        <div class="card-head ocean" id="segResultHead">Segment Results</div>
+        <div class="card-body" id="segResultBody"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ JAVASCRIPT ════════════════════════════════════════════════════════ -->
+<script>
+const $ = s => document.querySelector(s);
+let chartInstances = {};
+let heroCollapsed = false;
+
+function toggleHero() {
+  heroCollapsed = !heroCollapsed;
+  const hero = $('#heroSection');
+  $('#heroContent').style.display = heroCollapsed ? 'none' : '';
+  $('#heroCollapsed').style.display = heroCollapsed ? '' : 'none';
+  $('#heroToggle').textContent = heroCollapsed ? '\u25BC' : '\u25B2';
+  hero.classList.toggle('collapsed', heroCollapsed);
+  if (heroCollapsed) {
+    const title = $('#heroTitle')?.textContent || '';
+    $('#heroTitleMini').textContent = title;
+  }
+}
+
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+function fmt(n) { return n ? Number(n).toLocaleString() : '0'; }
+function pct(n) { return (Number(n)||0).toFixed(1) + '%'; }
+
+async function apiFetch(url, opts) {
+  const r = await fetch(url, opts);
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('json')) {
+    const text = await r.text();
+    throw new Error(`API returned non-JSON (${r.status}): ${text.substring(0, 120)}`);
+  }
+  const data = await r.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+function makeTable(data, cols) {
+  if (!data || !data.length) return '<div style="padding:16px;color:var(--anvil);text-align:center;font-size:12px">No data available</div>';
+  const headers = cols || Object.keys(data[0]);
+  return `<div class="table-scroll"><table class="data-table"><thead><tr>${headers.map(h=>`<th>${h.replace(/_/g,' ')}</th>`).join('')}</tr></thead><tbody>${
+    data.map(row=>`<tr>${headers.map(h=>`<td>${row[h]??''}</td>`).join('')}</tr>`).join('')
+  }</tbody></table></div>`;
+}
+
+function makeRowsClickable(containerSelector) {
+  const el = document.querySelector(containerSelector);
+  if (!el) return;
+  el.querySelectorAll('.data-table tbody tr').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.title = 'Click to investigate in Identity Intelligence';
+    row.onclick = () => {
+      const ampid = row.querySelector('td')?.textContent?.trim();
+      if (ampid && ampid.match(/^[0-9a-f]{8}-/i)) {
+        window.location.href = `/?explain=${encodeURIComponent(ampid)}&from=cotm`;
+      }
+    };
+  });
+}
+
+function toggleExpand(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  if (el.classList.contains('open') && !el.dataset.loaded) {
+    el.dataset.loaded = 'true';
+    loadClusterQuality();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HERO — Unified Shopper Pulse (single region for Acme)
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadHero() {
+  try {
+    const d = await apiFetch('/api/cross-region-pulse');
+    const regions = Object.entries(d).sort(([a],[b])=>a.localeCompare(b));
+
+    let totalRecords = 0, totalUnique = 0, totalSources = 0;
+    let activeRegion = null;
+    for (const [id, r] of regions) {
+      if (!r.error && r.summary) {
+        const s = r.summary;
+        totalRecords += Number(s.total_records) || 0;
+        totalUnique += Number(s.total_profiles) || 0;
+        totalSources += Number(s.source_count) || 0;
+        if (!activeRegion) activeRegion = r;
+      }
+    }
+    const dupsResolved = totalRecords - totalUnique;
+    const dedupPct = totalRecords ? (100 * dupsResolved / totalRecords) : 0;
+
+    const heroTitle = `${fmt(totalUnique)} Unified Shopper Profiles`;
+    $('#heroTitle').textContent = heroTitle;
+    $('#heroSubtitle').innerHTML = `A unified view of Acme customer identity across every data source. Each number represents real shoppers — previously invisible, fragmented, or duplicated — now resolved into a single, actionable profile.<br><br><span style="opacity:0.7">${fmt(dupsResolved)} duplicates resolved (${pct(dedupPct)} deduplication) across ${totalSources} source systems.</span>`;
+    $('#heroTitleMini').textContent = heroTitle;
+    $('#heroStatsMini').textContent = `${pct(dedupPct)} dedup \u00B7 ${totalSources} sources`;
+
+    // Build hero stats for Acme (single region view)
+    let statsHtml = '';
+    for (const [id, r] of regions) {
+      if (r.error) {
+        statsHtml += `<div class="hero-stat"><div class="val" style="color:var(--sat-red)">!</div><div class="lbl">${r.name}</div><div class="ctx">${r.error}</div></div>`;
+        continue;
+      }
+      const s = r.summary || {};
+      const dedup = Number(s.overall_dedup_rate) || 0;
+      const avgRec = Number(s.avg_records_per_id) || 0;
+      statsHtml += `<div class="hero-stat">
+        <div class="val">${fmt(s.total_profiles)}</div>
+        <div class="lbl">${r.name || "Acme"}</div>
+        <div class="ctx" style="color:var(--amp-yellow);font-style:italic;font-weight:500;opacity:1">One shopper, one truth — powered by Amperity</div>
+        <div class="ctx">${fmt(s.total_records)} records from ${s.source_count} sources — ${pct(dedup)} dedup rate</div>
+        <div class="ctx">${avgRec.toFixed(1)}x avg records per shopper</div>
+      </div>`;
+    }
+
+    // If only one region, also show some summary stat cards
+    if (regions.length <= 1 && activeRegion && activeRegion.summary) {
+      const s = activeRegion.summary;
+      statsHtml += `<div class="hero-stat">
+        <div class="val">${fmt(dupsResolved)}</div>
+        <div class="lbl">Duplicates Resolved</div>
+        <div class="ctx">${pct(dedupPct)} compression rate across all sources</div>
+      </div>`;
+      statsHtml += `<div class="hero-stat">
+        <div class="val">${s.source_count}</div>
+        <div class="lbl">Connected Sources</div>
+        <div class="ctx">Acme.com, Bloomingdale's, Star Rewards, POS, Email, Mobile</div>
+      </div>`;
+    }
+
+    $('#heroStats').innerHTML = statsHtml;
+  } catch(e) {
+    $('#heroStats').innerHTML = `<div class="error">${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD1: TRUSTED DATA — Dedup Before/After
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadDedup() {
+  try {
+    const [data, pulse] = await Promise.all([
+      apiFetch('/api/dedup-scorecard'),
+      apiFetch('/api/cross-region-pulse'),
+    ]);
+    if (!data.length) { $('#dedupBody').innerHTML = '<div class="loading">No dedup data</div>'; return; }
+
+    // Use pulse for accurate unique count
+    const activeData = Object.values(pulse).find(r => !r.error && r.summary);
+    const globalUnique = activeData?.summary ? (Number(activeData.summary.total_profiles) || 0) : 0;
+    const totalRecs = data.reduce((s,d) => s + (Number(d.source_records)||0), 0);
+    const totalDups = globalUnique ? (totalRecs - globalUnique) : data.reduce((s,d) => s + (Number(d.duplicates_removed)||0), 0);
+    const worst = data[0];
+
+    let html = `
+      <div class="ba-grid">
+        <div class="ba-before">
+          <div class="ba-label">Before: Fragmented</div>
+          <div class="ba-val">${fmt(totalRecs)}</div>
+          <div class="ba-desc">Disconnected records across ${data.length} systems. ${fmt(totalDups)} duplicates inflating shopper counts, wasting media spend, and creating inconsistent customer experiences.</div>
+        </div>
+        <div class="ba-after">
+          <div class="ba-label">Now: Resolved</div>
+          <div class="ba-val">${fmt(globalUnique || totalRecs - totalDups)}</div>
+          <div class="ba-desc">Trusted, deduplicated shopper identities — each one connected across every source system. ${totalRecs ? pct(100*totalDups/totalRecs) : '0%'} noise eliminated.</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--anvil)">
+        <strong style="color:var(--dusk)">Highest impact:</strong> ${worst.datasource} — ${pct(worst.dedup_rate_pct)} deduplication rate (${fmt(worst.duplicates_removed)} duplicates resolved)
+      </div>`;
+
+    html += '<div class="chart-wrap"><canvas id="dedupChart"></canvas></div>';
+    $('#dedupBody').innerHTML = html;
+
+    destroyChart('dedupChart');
+    chartInstances['dedupChart'] = new Chart(document.getElementById('dedupChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.datasource.replace(/^CDT_/,'').replace(/_Stitch$/,'').substring(0,20)),
+        datasets: [{
+          label: 'Duplicates Resolved',
+          data: data.map(d => Number(d.duplicates_removed)||0),
+          backgroundColor: '#FF504A90',
+          borderRadius: 4,
+        },{
+          label: 'Unique Shoppers',
+          data: data.map(d => Number(d.unique_ids)||0),
+          backgroundColor: '#00A0B2CC',
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:11}}}},
+        scales:{x:{stacked:true,ticks:{font:{family:'Montserrat',size:10}}},y:{stacked:true,ticks:{callback:v=>fmt(v)}}}
+      }
+    });
+  } catch(e) { $('#dedupBody').innerHTML = `<div class="error">${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD1: Source Completeness
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadSources() {
+  try {
+    const [sc, ov] = await Promise.all([apiFetch('/api/source-scorecard'), apiFetch('/api/source-overlap')]);
+
+    const totalRecs = sc.reduce((s,d)=>s+(Number(d.total_records)||0),0);
+    const bestEmail = sc.reduce((a,b)=>(Number(b.has_email)/Number(b.total_records))>(Number(a.has_email)/Number(a.total_records))?b:a);
+
+    let html = `<div class="insight"><strong>${fmt(totalRecs)} source records</strong> across ${sc.length} systems — now connected and queryable from a single layer. Strongest email coverage: <strong>${bestEmail.datasource}</strong> at ${pct(100*Number(bestEmail.has_email)/Number(bestEmail.total_records))}.`;
+    if (ov.length) html += ` Strongest cross-system link: <strong>${ov[0].source_a} \u2194 ${ov[0].source_b}</strong> (${fmt(ov[0].shared_ids)} shared identities).`;
+    html += '</div>';
+
+    html += '<div style="display:grid;gap:8px;margin-top:12px">';
+    for (const s of sc) {
+      const emailPct = Number(s.total_records) ? (100*Number(s.has_email)/Number(s.total_records)) : 0;
+      const phonePct = Number(s.total_records) ? (100*Number(s.has_phone)/Number(s.total_records)) : 0;
+      const addrPct = Number(s.total_records) ? (100*Number(s.has_address)/Number(s.total_records)) : 0;
+      html += `<div style="background:var(--cloud);border-radius:8px;padding:12px 16px;display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:12px;align-items:center">
+        <div><div style="font-weight:600;font-size:12px;color:var(--dusk)">${s.datasource}</div>
+          <div style="font-size:10px;color:var(--anvil)">${fmt(s.total_records)} records</div></div>
+        <div style="text-align:center"><div style="font-size:16px;font-weight:700;color:${emailPct>70?'#16a34a':emailPct>40?'var(--ocean)':'var(--sat-red)'}">${pct(emailPct)}</div><div style="font-size:9px;color:var(--anvil)">EMAIL</div></div>
+        <div style="text-align:center"><div style="font-size:16px;font-weight:700;color:${phonePct>70?'#16a34a':phonePct>40?'var(--ocean)':'var(--sat-red)'}">${pct(phonePct)}</div><div style="font-size:9px;color:var(--anvil)">PHONE</div></div>
+        <div style="text-align:center"><div style="font-size:16px;font-weight:700;color:${addrPct>70?'#16a34a':addrPct>40?'var(--ocean)':'var(--sat-red)'}">${pct(addrPct)}</div><div style="font-size:9px;color:var(--anvil)">ADDRESS</div></div>
+      </div>`;
+    }
+    html += '</div>';
+    $('#sourceBody').innerHTML = html;
+  } catch(e) { $('#sourceBody').innerHTML = `<div class="error">${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD1: Name Variants
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadVariants() {
+  try {
+    const [data, countData] = await Promise.all([apiFetch('/api/name-variants'), apiFetch('/api/name-variants-count')]);
+    if (!data.length) {
+      $('#variantBody').innerHTML = '<div class="insight">No significant name variation detected.</div>';
+      return;
+    }
+    const total = Number(countData.total) || data.length;
+
+    let html = `<div class="insight">
+      <strong>${total.toLocaleString()} shoppers</strong> identified through probabilistic name matching — nicknames vs. legal names (Bob/Robert, Liz/Elizabeth), maiden vs. married surnames, and spelling differences between online forms and in-store POS entry. These shoppers would remain permanently fragmented without ML-powered identity resolution. Showing top ${data.length} by variation count.
+    </div>`;
+    html += makeTable(data.slice(0, 15), ['amperity_id','record_count','source_count','given_name_variants','surname_variants','full_name_variants','email_count']);
+    $('#variantBody').innerHTML = html;
+    makeRowsClickable('#variantBody');
+  } catch(e) { $('#variantBody').innerHTML = `<div class="error">${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD1: Crosswalk — golden record
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadCrosswalk() {
+  try {
+    const data = await apiFetch('/api/crosswalk-sample');
+    if (!data.length) { $('#crosswalkBody').innerHTML = '<div class="loading">No multi-source crosswalk entries found.</div>'; return; }
+
+    let html = `<div class="insight">
+      Each row is <strong>one unified Acme shopper</strong> with records linked across multiple source systems. A single ID maps every fragmented record back to one person — the foundation for trusted activation. Click any row to explore the full identity.
+    </div>`;
+    html += makeTable(data, ['amperity_id','record_count','source_count','pk_count','sample_name','sample_surname']);
+    $('#crosswalkBody').innerHTML = html;
+
+    $('#crosswalkBody').querySelectorAll('.data-table tbody tr').forEach(row => {
+      row.style.cursor = 'pointer';
+      row.onclick = () => {
+        const ampid = row.querySelector('td')?.textContent?.trim();
+        if (ampid && ampid.match(/^[0-9a-f]{8}-/i)) {
+          window.location.href = `/?explain=${encodeURIComponent(ampid)}&from=cotm`;
+        }
+      };
+    });
+  } catch(e) { $('#crosswalkBody').innerHTML = `<div class="error">${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD1: Cluster Quality (expandable)
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadClusterQuality() {
+  try {
+    const [os, ms, dist] = await Promise.all([
+      apiFetch('/api/cluster-health/oversized'),
+      apiFetch('/api/cluster-health/multi-surname'),
+      apiFetch('/api/cluster-health/distribution'),
+    ]);
+
+    const totalClusters = dist.reduce((s,d)=>s+Number(d.cluster_count||0),0);
+    const singletons = dist.find(d=>Number(d.cluster_size)==1);
+    const singletonPct = singletons ? (100*Number(singletons.cluster_count)/totalClusters).toFixed(1) : '?';
+    $('#qualitySignals').innerHTML = `
+      <div style="display:grid;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--cement)">
+          <span style="font-size:12px;color:var(--anvil)">Total identity clusters</span>
+          <span style="font-size:16px;font-weight:700;color:var(--dusk)">${fmt(totalClusters)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--cement)">
+          <span style="font-size:12px;color:var(--anvil)">Singleton rate</span>
+          <span style="font-size:16px;font-weight:700;color:var(--ocean)">${singletonPct}%</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--cement)">
+          <span style="font-size:12px;color:var(--anvil)">Oversized clusters (>20 records)</span>
+          <span style="font-size:16px;font-weight:700;color:${os.length>10?'var(--sat-red)':'#16a34a'}">${os.length}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+          <span style="font-size:12px;color:var(--anvil)">Multi-surname clusters (>3)</span>
+          <span style="font-size:16px;font-weight:700;color:${ms.length>20?'var(--sat-red)':'#16a34a'}">${ms.length}</span>
+        </div>
+      </div>`;
+
+    const buckets = [{label:'1',min:1,max:1},{label:'2-3',min:2,max:3},{label:'4-10',min:4,max:10},{label:'11-20',min:11,max:20},{label:'21-50',min:21,max:50},{label:'51+',min:51,max:999999}];
+    const bucketCounts = buckets.map(b => dist.filter(d=>Number(d.cluster_size)>=b.min && Number(d.cluster_size)<=b.max).reduce((s,d)=>s+Number(d.cluster_count||0),0));
+    destroyChart('clusterDistChart');
+    chartInstances['clusterDistChart'] = new Chart(document.getElementById('clusterDistChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: buckets.map(b=>b.label + ' records'),
+        datasets: [{ data: bucketCounts, backgroundColor: ['#00A0B2','#54D3DE','#004B57','#ABF4F7','#EAFF5F','#FF504A'], borderRadius:4 }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false, indexAxis:'y',
+        plugins:{ legend:{display:false} },
+        scales:{ x:{ticks:{callback:v=>fmt(v),font:{family:'Montserrat'}}}, y:{ticks:{font:{family:'Montserrat',size:11}}} }
+      }
+    });
+  } catch(e) {
+    $('#qualitySignals').innerHTML = `<div class="error">${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD2: Household Bloat Detection
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadFleet() {
+  try {
+    const [data, countData] = await Promise.all([
+      apiFetch('/api/fleet-fragmentation'),
+      apiFetch('/api/fleet-fragmentation-count').catch(() => ({ total: 0 })),
+    ]);
+    if (!data.length) {
+      $('#fleetBody').innerHTML = '<div class="insight">No household bloat detected — identity boundaries are clean.</div>';
+      return;
+    }
+    const total = countData.total || data.length;
+
+    let html = `<div class="ba-grid">
+      <div class="ba-before">
+        <div class="ba-label">Before: Hidden</div>
+        <div class="ba-val">${total.toLocaleString()} bloated clusters</div>
+        <div class="ba-desc">Family members merged into single identities — parents, children, spouses sharing addresses or loyalty accounts. Inflates LTV, corrupts personalization, and creates compliance risk.</div>
+      </div>
+      <div class="ba-after">
+        <div class="ba-label">Now: Surfaced</div>
+        <div class="ba-val">Identified & flagged</div>
+        <div class="ba-desc">The identity graph detects household bloat patterns automatically — many distinct given names with few surnames and shared contact info.</div>
+      </div>
+    </div>`;
+    html += makeTable(data.slice(0, 10), ['amperity_id','record_count','source_count','given_name_variants','surname_variants','email_variants','loyalty_id_count']);
+    $('#fleetBody').innerHTML = html;
+    makeRowsClickable('#fleetBody');
+  } catch(e) { $('#fleetBody').innerHTML = `<div class="error">${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD2: Stitch Performance
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadStitch() {
+  try {
+    const [st, sc, sr] = await Promise.all([
+      apiFetch('/api/stitch-stats'),
+      apiFetch('/api/stitch-score-distribution'),
+      apiFetch('/api/stitch-records-per-source'),
+    ]);
+
+    let html = '<div style="display:grid;gap:12px">';
+    if (st.length) {
+      const s = st[0];
+      const uniqueCustomers = s.total_clusters || s.unique_ids || 0;
+      const totalRecs = s.total_records || 0;
+      const compressionRate = totalRecs > 0 ? (100 * (1 - Number(uniqueCustomers) / Number(totalRecs))) : 0;
+      html += `<div class="insight">
+        <strong>${fmt(totalRecs)} records</strong> resolved into
+        <strong>${fmt(uniqueCustomers)} unified shopper profiles</strong> — a ${pct(compressionRate)} compression rate.
+        Runs automatically at enterprise scale with no manual intervention.
+      </div>`;
+    }
+
+    if (sc.length) {
+      html += '<div class="chart-wrap"><canvas id="stitchScoreChart"></canvas></div>';
+    }
+
+    if (sr.length) {
+      html += '<div style="margin-top:8px">';
+      for (const s of sr.slice(0,8)) {
+        const barPct = sr[0] ? (100*Number(s.record_count)/Number(sr[0].record_count)) : 0;
+        html += `<div style="display:grid;grid-template-columns:140px 1fr 60px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--cement)">
+          <span style="font-size:11px;font-weight:600;color:var(--dusk)">${s.datasource?.substring(0,20)}</span>
+          <div style="height:8px;background:var(--cement);border-radius:4px;overflow:hidden"><div style="height:100%;width:${barPct}%;background:var(--ocean);border-radius:4px"></div></div>
+          <span style="font-size:11px;color:var(--anvil);text-align:right">${fmt(s.record_count)}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    html += '</div>';
+    $('#stitchBody').innerHTML = html;
+
+    if (sc.length) {
+      destroyChart('stitchScoreChart');
+      chartInstances['stitchScoreChart'] = new Chart(document.getElementById('stitchScoreChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: sc.map(d => d.score_bucket || d.score_range || ''),
+          datasets: [{ data: sc.map(d => Number(d.pair_count||d.count||0)), backgroundColor: '#004B57CC', borderRadius: 4 }]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{display:false}, title:{display:true,text:'Match Score Distribution',font:{family:'Montserrat',size:13,weight:'600'},color:'#004B57'} },
+          scales:{ y:{ticks:{callback:v=>fmt(v),font:{family:'Montserrat'}}}, x:{ticks:{font:{family:'Montserrat',size:10}}} }
+        }
+      });
+    }
+  } catch(e) { $('#stitchBody').innerHTML = `<div class="error">${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD2: Drift Monitor
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadDrift() {
+  try {
+    const [alerts, hist] = await Promise.all([
+      apiFetch('/api/drift/alerts?unacknowledged=true'),
+      apiFetch('/api/drift/history'),
+    ]);
+
+    let html = `<div class="insight">
+      Continuous monitoring of identity resolution quality — automatic alerts when data patterns shift.
+      ${alerts.length ? `<strong style="color:var(--sat-red)">${alerts.length} active alert(s)</strong> require attention.` : '<strong>No active alerts</strong> — identity quality is stable across all sources.'}
+    </div>`;
+
+    if (alerts.length) {
+      html += '<div style="margin:12px 0">';
+      for (const a of alerts) {
+        html += `<div style="background:#FFF5F5;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:12px;font-weight:600;color:var(--sat-red)">${a.metric || a.type || 'Alert'}</div>
+          <div style="font-size:11px;color:var(--anvil)">${a.message || ''}</div></div>
+          <button onclick="ackAlert(${a.id})" style="background:var(--ocean);color:white;border:none;border-radius:4px;padding:6px 12px;font-size:11px;font-family:Montserrat;cursor:pointer">Acknowledge</button>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    if (hist.length) {
+      html += '<div style="font-size:12px;font-weight:600;color:var(--dusk);margin-top:16px;margin-bottom:8px">Snapshot History</div>';
+      html += makeTable(hist.slice(0, 10));
+    } else {
+      html += '<div style="padding:16px;text-align:center;font-size:12px;color:var(--anvil)">No snapshots yet. <button onclick="takeSnapshot()" class="expand-btn" style="margin:0">Take First Snapshot</button></div>';
+    }
+
+    $('#driftBody').innerHTML = html;
+  } catch(e) { $('#driftBody').innerHTML = `<div class="error">${e.message}</div>`; }
+}
+
+async function takeSnapshot() {
+  try {
+    const d = await apiFetch('/api/drift/snapshot',{method:'POST'});
+    alert(`Snapshot saved! ${d.alerts?.length ? d.alerts.length + ' alert(s) triggered' : 'No drift detected.'}`);
+    loadDrift();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+async function ackAlert(id) { await apiFetch(`/api/drift/alerts/${id}/acknowledge`,{method:'POST'}); loadDrift(); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VD3: Smart Segments — Acme Shopper Activation
+// ═══════════════════════════════════════════════════════════════════════════
+const SEGMENTS = {
+  'cross-channel-shoppers': {
+    name: 'Cross-Channel Shoppers',
+    why: 'Customers appearing in 3+ data sources — your most connected, highest-confidence identities. This segment is only possible with a unified identity foundation.',
+    sql: "SELECT amperity_id, given_name, surname, email, phone, city, state FROM Unified_Coalesced GROUP BY amperity_id, given_name, surname, email, phone, city, state HAVING COUNT(DISTINCT datasource) >= 3 LIMIT 200",
+    columns: ['amperity_id','given_name','surname','email','phone','city','state'],
+    category: 'Acquire & Grow'
+  },
+  'high-value-loyalty': {
+    name: 'High-Value Loyalty Members',
+    why: 'Star Rewards members with multi-source presence — cross-channel loyalists who represent the highest lifetime value. Only visible through unified identity.',
+    sql: "SELECT DISTINCT a.amperity_id, a.given_name, a.surname, a.email, a.city, a.state FROM Unified_Coalesced a WHERE a.datasource = 'loyal_acct_stitch' AND a.amperity_id IN (SELECT amperity_id FROM Unified_Coalesced GROUP BY amperity_id HAVING COUNT(DISTINCT datasource) >= 2) LIMIT 200",
+    columns: ['amperity_id','given_name','surname','email','city','state'],
+    category: 'Retain & Grow'
+  },
+  'online-to-store': {
+    name: 'Online-to-Store Bridge',
+    why: 'Shoppers with both digital and physical touchpoints — mobile registration linked to credit/account records, proving cross-channel identity resolution.',
+    sql: "SELECT DISTINCT a.amperity_id, a.given_name, a.surname, a.email, a.city, a.state FROM Unified_Coalesced a WHERE a.datasource IN ('CDT_mcy_mbl_rgstrtn_t_stitch','CDT_blm_mbl_rgstrtn_t_stitch') AND a.amperity_id IN (SELECT amperity_id FROM Unified_Coalesced WHERE datasource IN ('crdt_classic_acct_mstr_stitch','merged_accounts_stitch')) LIMIT 200",
+    columns: ['amperity_id','given_name','surname','email','city','state'],
+    category: 'Activate'
+  },
+  'email-engaged-buyers': {
+    name: 'Email-Engaged Buyers',
+    why: 'Email subscribers matched to transactional or loyalty records — digitally active customers ready for upsell and cross-sell activation.',
+    sql: "SELECT DISTINCT a.amperity_id, a.given_name, a.surname, a.email, a.city, a.state FROM Unified_Coalesced a WHERE a.datasource = 'CDT_cdm_email_mst' AND a.amperity_id IN (SELECT amperity_id FROM Unified_Coalesced WHERE datasource IN ('merged_accounts_stitch','loyal_acct_stitch','crdt_classic_acct_mstr_stitch')) LIMIT 200",
+    columns: ['amperity_id','given_name','surname','email','city','state'],
+    category: 'Activate'
+  },
+  'retention-risk': {
+    name: 'Retention Risk: Single-Touch',
+    why: 'Shoppers only appearing in one source — at risk of churn because their full engagement is invisible. The identity gap that targeted outreach can close.',
+    sql: "SELECT a.amperity_id, a.given_name, a.surname, a.email, a.city, a.state FROM Unified_Coalesced a WHERE a.amperity_id IN (SELECT amperity_id FROM Unified_Coalesced GROUP BY amperity_id HAVING COUNT(DISTINCT datasource) = 1) LIMIT 200",
+    columns: ['amperity_id','given_name','surname','email','city','state'],
+    category: 'Retain'
+  }
+};
+
+function renderSegCards() {
+  const container = $('#segCards');
+  container.innerHTML = Object.entries(SEGMENTS).map(([key, seg]) => `
+    <div class="seg-card" data-key="${key}" onclick="runSegment('${key}')">
+      <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ocean);margin-bottom:6px">${seg.category}</div>
+      <div class="seg-name">${seg.name}</div>
+      <div class="seg-why">${seg.why}</div>
+      <div class="seg-count" id="count-${key}">&mdash;</div>
+    </div>
+  `).join('');
+}
+
+async function runSegment(key) {
+  const seg = SEGMENTS[key];
+  if (!seg) return;
+
+  document.querySelectorAll('.seg-card').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.seg-card[data-key="${key}"]`)?.classList.add('active');
+
+  const card = $('#segResultCard');
+  card.style.display = 'block';
+  $('#segResultHead').textContent = seg.name;
+  $('#segResultBody').innerHTML = '<div class="loading">Running segment query...</div>';
+
+  try {
+    const d = await apiFetch('/api/segment-preview', {
+      method:'POST',
+      body:JSON.stringify({sql:seg.sql}),
+      headers:{'Content-Type':'application/json'}
+    });
+
+    const countEl = document.getElementById(`count-${key}`);
+    if (countEl) countEl.textContent = fmt(d.total);
+
+    let html = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+      <div style="background:var(--cloud);border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--ocean)">${fmt(d.total)}</div>
+        <div style="font-size:11px;font-weight:600;color:var(--anvil);letter-spacing:0.5px">MATCHING SHOPPERS</div>
+      </div>
+      <div style="background:var(--cloud);border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--dusk)">${seg.category}</div>
+        <div style="font-size:11px;font-weight:600;color:var(--anvil);letter-spacing:0.5px">VALUE DRIVER</div>
+      </div>
+      <div style="background:#F0FDF9;border-radius:10px;padding:16px;text-align:center;border:1px solid #bbf7d0">
+        <div style="font-size:28px;font-weight:800;color:#16a34a">Ready</div>
+        <div style="font-size:11px;font-weight:600;color:var(--anvil);letter-spacing:0.5px">ACTIVATION STATUS</div>
+      </div>
+    </div>`;
+
+    const cleanSql = seg.sql.replace(/\s*LIMIT\s+\d+\s*$/i, '');
+    html += `<div class="insight">${seg.why} This audience of <strong>${fmt(d.total)} Acme shoppers</strong> is ready to activate through any connected destination — no data engineering required.</div>`;
+
+    html += `<div style="display:flex;gap:10px;margin:12px 0">
+      <button onclick="copyCotmSQL('${key}', this)" style="font-size:11px;padding:5px 14px;border:1px solid var(--ocean);background:transparent;color:var(--ocean);border-radius:5px;cursor:pointer;font-weight:600">Copy SQL</button>
+      <button onclick="copyAndOpenQueries('${key}', this)" style="font-size:11px;padding:5px 14px;border:1px solid var(--ocean);background:var(--ocean);color:#fff;border-radius:5px;cursor:pointer;font-weight:600">Copy SQL &amp; Open Queries</button>
+    </div>`;
+
+    if (d.sample && d.sample.length) {
+      const cols = seg.columns || Object.keys(d.sample[0]);
+      html += `<div style="font-size:12px;font-weight:600;color:var(--dusk);margin:16px 0 8px">Sample Profiles (${Math.min(d.sample.length, 20)} of ${fmt(d.total)})</div>`;
+      html += makeTable(d.sample.slice(0, 20), cols);
+    }
+
+    html += `<button class="expand-btn" onclick="runSegDemographics('${key}')">Show Demographic Breakdown</button>`;
+    html += `<div id="segDemoResult-${key}" style="margin-top:12px"></div>`;
+
+    $('#segResultBody').innerHTML = html;
+    makeRowsClickable('#segResultBody');
+
+    card.scrollIntoView({ behavior:'smooth', block:'start' });
+  } catch(e) {
+    $('#segResultBody').innerHTML = `<div class="error">${e.message}</div>`;
+  }
+}
+
+function copyCotmSQL(key, btn) {
+  const seg = SEGMENTS[key];
+  if (!seg) return;
+  const sql = seg.sql.replace(/\s*LIMIT\s+\d+\s*$/i, '');
+  navigator.clipboard.writeText(sql);
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = 'Copy SQL'; }, 1500);
+}
+
+function copyAndOpenQueries(key, btn) {
+  const seg = SEGMENTS[key];
+  if (!seg) return;
+  const sql = seg.sql.replace(/\s*LIMIT\s+\d+\s*$/i, '');
+  window.open('https://macys.amperity.com/?th=PYzlg#/queries', '_blank');
+  navigator.clipboard.writeText(sql);
+  btn.textContent = 'Copied! Opening...';
+  setTimeout(() => { btn.textContent = 'Copy SQL & Open Queries'; }, 2000);
+}
+
+async function runSegDemographics(key) {
+  const seg = SEGMENTS[key];
+  const el = document.getElementById(`segDemoResult-${key}`);
+  if (!el || !seg) return;
+  el.innerHTML = '<div class="loading">Loading demographics...</div>';
+  try {
+    const d = await apiFetch('/api/segment-demographics', {
+      method:'POST',
+      body:JSON.stringify({sql:seg.sql}),
+      headers:{'Content-Type':'application/json'}
+    });
+
+    let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">';
+
+    if (d.state_distribution?.length) {
+      html += '<div>';
+      html += '<div style="font-size:12px;font-weight:600;color:var(--dusk);margin-bottom:8px">Geographic Distribution</div>';
+      for (const s of d.state_distribution.slice(0, 10)) {
+        const maxCnt = Number(d.state_distribution[0].cnt);
+        const barPct = maxCnt ? (100*Number(s.cnt)/maxCnt) : 0;
+        html += `<div style="display:grid;grid-template-columns:40px 1fr 50px;gap:8px;align-items:center;padding:4px 0">
+          <span style="font-size:11px;font-weight:600;color:var(--dusk)">${s.state || '?'}</span>
+          <div style="height:8px;background:var(--cement);border-radius:4px;overflow:hidden"><div style="height:100%;width:${barPct}%;background:var(--teal);border-radius:4px"></div></div>
+          <span style="font-size:10px;color:var(--anvil);text-align:right">${fmt(s.cnt)}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    if (d.source_distribution?.length) {
+      html += '<div>';
+      html += '<div style="font-size:12px;font-weight:600;color:var(--dusk);margin-bottom:8px">Source System Distribution</div>';
+      for (const s of d.source_distribution.slice(0, 10)) {
+        const maxCnt = Number(d.source_distribution[0].cnt);
+        const barPct = maxCnt ? (100*Number(s.cnt)/maxCnt) : 0;
+        html += `<div style="display:grid;grid-template-columns:120px 1fr 50px;gap:8px;align-items:center;padding:4px 0">
+          <span style="font-size:10px;font-weight:600;color:var(--dusk);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(s.datasource||'').substring(0,18)}</span>
+          <div style="height:8px;background:var(--cement);border-radius:4px;overflow:hidden"><div style="height:100%;width:${barPct}%;background:var(--ocean);border-radius:4px"></div></div>
+          <span style="font-size:10px;color:var(--anvil);text-align:right">${fmt(s.cnt)}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    html += '</div>';
+    el.innerHTML = html || '<div style="color:var(--anvil);font-size:12px">No demographic data available for this segment.</div>';
+  } catch(e) {
+    el.innerHTML = `<div class="error">${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOAD ALL — parallel data loading (no region switcher for Acme)
+// ═══════════════════════════════════════════════════════════════════════════
+function loadAll() {
+  loadHero();
+  loadDedup();
+  loadSources();
+  loadVariants();
+  loadCrosswalk();
+  loadFleet();
+  loadStitch();
+  loadDrift();
+  // Cluster quality is lazy-loaded on expand
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  renderSegCards();
+  loadAll();
+});
+</script>
+</body>
+</html>
